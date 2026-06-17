@@ -2,17 +2,17 @@ import * as C from "../data/constants";
 import { getStellarData, formatArcMinutes, checkDignityForEntity } from "../utils/astrology";
 
 const tableWrap = {
-  background: "var(--card)", border: "1px solid var(--bdr)", borderRadius: "8px",
-  padding: "16px", margin: "16px 0", overflowX: "auto"
+  background: "var(--card)", border: "1px solid var(--bdr)", borderRadius: "6px",
+  padding: "10px", margin: "10px 0", overflowX: "auto"
 };
-const headerStyle = { margin: "0 0 12px 0", fontSize: "1.1rem", fontFamily: "'Playfair Display',serif", color: "var(--accent)" };
-const tableStyle = { width: "100%", borderCollapse: "collapse", fontSize: "0.82rem", minWidth: "900px" };
+const headerStyle = { margin: "0 0 6px 0", fontSize: "0.85rem", fontFamily: "'Playfair Display',serif", color: "var(--accent)" };
+const tableStyle = { width: "100%", borderCollapse: "collapse", fontSize: "0.72rem", minWidth: "900px" };
 const thStyle = {
-  padding: "8px 6px", borderBottom: "2px solid var(--bdr)", color: "var(--muted)",
-  textAlign: "left", fontWeight: 600, fontSize: "0.72rem", textTransform: "uppercase",
+  padding: "4px 4px", borderBottom: "1px solid var(--bdr)", color: "var(--muted)",
+  textAlign: "left", fontWeight: 600, fontSize: "0.65rem", textTransform: "uppercase",
   whiteSpace: "nowrap"
 };
-const tdStyle = { padding: "6px", borderBottom: "1px solid var(--bdr)", color: "var(--fg)", whiteSpace: "nowrap" };
+const tdStyle = { padding: "3px 4px", borderBottom: "1px solid var(--bdr)", color: "var(--fg)", whiteSpace: "nowrap" };
 
 const DIGNITY_COLORS = {
   aatchi: { color: "#1565C0", bg: "#1565C0" },

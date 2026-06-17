@@ -45,15 +45,15 @@ function PlanetTag({ p, layoutType, panchanga, moonNakIndex }) {
   return (
     <span style={{ ...planetTag, ...(isMoon ? { background: "#F7EEB5", borderColor: "#D9CC7A" } : {}) }}>
       <span style={{ display: "flex", alignItems: "center", gap: "2px", width: "100%" }}>
-        <span style={{ color: pColor, fontWeight: 700 }}>{p.name}</span>
+        <span style={{ color: isMoon ? "#858585" : pColor, fontWeight: 700 }}>{p.name}</span>
         {marker ? <span dangerouslySetInnerHTML={{ __html: marker }} /> : null}
         {p.isRetro ? <span style={{ color: "#C93B3B", fontSize: "0.65rem", fontWeight: 800 }}>R</span> : null}
         <span dangerouslySetInnerHTML={{ __html: degHtml }} />
       </span>
       <span style={{ fontSize: "0.55rem", lineHeight: 1.3, marginTop: "1px", opacity: 0.9 }}>
-        <span style={{ color: "var(--star-clr)", fontWeight: 700 }}>{st.starLord}</span>
-        <span style={{ color: "var(--muted)" }}>·P{st.pada}</span>
-        {layoutType === "rasi" ? <span style={{ color: "var(--fg)", fontWeight: 600 }}>{` ${st.subLord}`}</span> : null}
+        <span style={{ color: isMoon ? "#858585" : "var(--star-clr)", fontWeight: 700 }}>{st.starLord}</span>
+        <span style={{ color: isMoon ? "#858585" : "var(--muted)" }}>·P{st.pada}</span>
+        {layoutType === "rasi" ? <span style={{ color: isMoon ? "#858585" : "var(--fg)", fontWeight: 600 }}>{st.subLord}</span> : null}
       </span>
     </span>
   );
@@ -127,7 +127,7 @@ function D1Grid({ planets, cusps, ascendantAbsoluteLong, panchanga, birthTime })
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "2px" }}>
               {isAsc ? (
-                <span style={{ fontSize: "0.65rem", fontWeight: 700, background: "var(--fg)", color: "#fff", padding: "2px 5px", borderRadius: "3px" }}>
+                <span style={{ fontSize: "0.65rem", fontWeight: 700, background: "var(--accent)", color: "#fff", padding: "2px 5px", borderRadius: "3px" }}>
                   Asc {Math.floor(ascendantAbsoluteLong % 30)}°
                 </span>
               ) : null}
@@ -184,7 +184,7 @@ function D9Grid({ planets, ascendantAbsoluteLong }) {
               </span>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "2px" }}>
-              {isAsc ? <span style={{ fontSize: "0.65rem", fontWeight: 700, background: "var(--fg)", color: "#fff", padding: "2px 5px", borderRadius: "3px" }}>Asc</span> : null}
+              {isAsc ? <span style={{ fontSize: "0.65rem", fontWeight: 700, background: "var(--accent)", color: "#fff", padding: "2px 5px", borderRadius: "3px" }}>Asc</span> : null}
               {isAsc ? (
                 <span style={{ fontSize: "0.6rem", color: "var(--muted)" }}>
                   {getStellarData(ascendantAbsoluteLong).starLord}

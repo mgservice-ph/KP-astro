@@ -29,15 +29,15 @@ export const ENEMY_MAP = {
 };
 
 export const NAKSHATRAS = [
-  { n: "Ashwini", s: 0, l: "Ket" }, { n: "Bharani", s: 13.3333, l: "Ven" }, { n: "Krittika", s: 26.6667, l: "Sun" },
-  { n: "Rohini", s: 40, l: "Moo" }, { n: "Mrigashira", s: 53.3333, l: "Mar" }, { n: "Ardra", s: 66.6667, l: "Rah" },
-  { n: "Punarvasu", s: 80, l: "Jup" }, { n: "Pushya", s: 93.3333, l: "Sat" }, { n: "Ashlesha", s: 106.6667, l: "Mer" },
-  { n: "Magha", s: 120, l: "Ket" }, { n: "Purva Phalguni", s: 133.3333, l: "Ven" }, { n: "Uttara Phalguni", s: 146.6667, l: "Sun" },
-  { n: "Hasta", s: 160, l: "Moo" }, { n: "Chitra", s: 173.3333, l: "Mar" }, { n: "Swati", s: 186.6667, l: "Rah" },
-  { n: "Vishakha", s: 200, l: "Jup" }, { n: "Anuradha", s: 213.3333, l: "Sat" }, { n: "Jyeshtha", s: 226.6667, l: "Mer" },
-  { n: "Mula", s: 240, l: "Ket" }, { n: "Purva Ashadha", s: 253.3333, l: "Ven" }, { n: "Uttara Ashadha", s: 266.6667, l: "Sun" },
-  { n: "Shravana", s: 280, l: "Moo" }, { n: "Dhanishta", s: 293.3333, l: "Mar" }, { n: "Shatabhisha", s: 306.6667, l: "Rah" },
-  { n: "Purva Bhadrapada", s: 320, l: "Jup" }, { n: "Uttara Bhadrapada", s: 333.3333, l: "Sat" }, { n: "Revati", s: 346.6667, l: "Mer" }
+  { n: "Ashwini", s: 0, l: "Ket" }, { n: "Bharani", s: 13.3333, l: "Ven" }, { n: "Karthigai", s: 26.6667, l: "Sun" },
+  { n: "Rohini", s: 40, l: "Moo" }, { n: "Mirugaseeridam", s: 53.3333, l: "Mar" }, { n: "Thiruvaadhirai", s: 66.6667, l: "Rah" },
+  { n: "Punarpusam", s: 80, l: "Jup" }, { n: "Poosam", s: 93.3333, l: "Sat" }, { n: "Aayilyam", s: 106.6667, l: "Mer" },
+  { n: "Magam", s: 120, l: "Ket" }, { n: "Pooram", s: 133.3333, l: "Ven" }, { n: "Uthiram", s: 146.6667, l: "Sun" },
+  { n: "Astham", s: 160, l: "Moo" }, { n: "Chithirai", s: 173.3333, l: "Mar" }, { n: "Swathi", s: 186.6667, l: "Rah" },
+  { n: "Visagam", s: 200, l: "Jup" }, { n: "Anusham", s: 213.3333, l: "Sat" }, { n: "Kettai", s: 226.6667, l: "Mer" },
+  { n: "Moolam", s: 240, l: "Ket" }, { n: "Pooraadam", s: 253.3333, l: "Ven" }, { n: "Uthiraadam", s: 266.6667, l: "Sun" },
+  { n: "Thiruvaonam", s: 280, l: "Moo" }, { n: "Avittam", s: 293.3333, l: "Mar" }, { n: "Sadhayam", s: 306.6667, l: "Rah" },
+  { n: "Poorattaadhi", s: 320, l: "Jup" }, { n: "Uthirattaadhi", s: 333.3333, l: "Sat" }, { n: "Revathi", s: 346.6667, l: "Mer" }
 ];
 
 export const PLANET_COLORS = { Sun: "#FF6B00", Moon: "#999999", Mars: "#FF3333", Mercury: "#33CC33", Jupiter: "#E5A600", Venus: "#C93A6B", Saturn: "#6666CC", Rahu: "#9933FF", Ketu: "#CC6600", Mandi: "#8B2252" };
@@ -71,10 +71,10 @@ export const ENGINE_BODIES = {
 
 export const VAARA_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 export const VAARA_LORDS = ["Sun", "Moon", "Mars", "Mercury", "Jupiter", "Venus", "Saturn"];
-export const THITHI_BASE = ["Pratipada", "Dwitiya", "Tritiya", "Chaturthi", "Panchami", "Shashthi", "Saptami", "Ashtami", "Navami", "Dashami", "Ekadashi", "Dwadashi", "Trayodashi", "Chaturdashi"];
-export const PAKSHA = ["Shukla", "Krishna"];
+export const THITHI_BASE = ["Prathamai", "Dvithiyai", "Thrithiyai", "Chathurthi", "Panchami", "Sashti", "Sapthami", "Ashtami", "Navami", "Dhasami", "Ekadhasi", "Dhwadhasi", "Thrayodhasi", "Chathurdhasi"];
+export const PAKSHA = ["Valarpirai", "Theypirai"];
 export const YOGA_NAMES = ["Vishkumbha", "Priti", "Ayushman", "Saubhagya", "Shobhana", "Atiganda", "Sukarman", "Dhriti", "Shula", "Ganda", "Vriddhi", "Dhruva", "Vyaghata", "Harshana", "Vajra", "Siddhi", "Vyatipata", "Variyan", "Parigha", "Shiva", "Siddha", "Sadhya", "Shubha", "Shukla", "Brahma", "Indra", "Vaidhriti"];
-export const KARANA_NAMES = ["Bava", "Balava", "Kaulava", "Taitila", "Garaja", "Vanija", "Vishti", "Shakuni", "Chatushpada", "Naga", "Kinstughna"];
+export const KARANA_NAMES = ["Bava", "Baalava", "Kaulava", "Thaithilai", "Garajai", "Vanijai", "Bhadrai (Vishti)", "Shakuni", "Chathushpaadham", "Naagavam", "Kimsthugnam"];
 
 export const THITHI_SOONYA = [
   { signs: [9, 6], grahas: ["Saturn", "Venus"] }, { signs: [8, 11], grahas: ["Jupiter"] }, { signs: [9, 4], grahas: ["Saturn", "Sun"] },
@@ -108,3 +108,5 @@ export const PUSHKAR_NAVAMSAM = [
 
 export const DAYTIME_SATURN_PART = [7, 6, 5, 4, 3, 2, 1];
 export const NIGHTTIME_SATURN_PART = [3, 2, 1, 7, 6, 5, 4];
+export const DAYTIME_EIGHTH_PART = [8, 8, 8, 8, 8, 8, 8];
+export const NIGHTTIME_EIGHTH_PART = [8, 8, 8, 8, 8, 8, 8];

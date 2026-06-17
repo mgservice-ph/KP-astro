@@ -63,7 +63,7 @@ export function computeThithi(sunLong, moonLong) {
   const paksha = index < 15 ? 0 : 1;
   const baseIndex = index % 15;
   const displayName = baseIndex === 14
-    ? (paksha === 0 ? "Purnima" : "Amavasya")
+    ? (paksha === 0 ? "Valarpirai Pournami" : "Theypirai Amavasai")
     : `${C.PAKSHA[paksha]} ${C.THITHI_BASE[baseIndex]}`;
   return { index, name: displayName, paksha };
 }
@@ -125,6 +125,54 @@ export function calculateMandi(birthDate, lat, lng, ayanamsaOffset) {
   const periodDuration = isDaytime ? dayDuration : nightDuration;
   const partDuration = periodDuration / 8;
   const mandiTime = new Date(periodStart.getTime() + (mandiPart - 1) * partDuration);
+
+  return computeAscendantAtTime(mandiTime, lat, lng, ayanamsaOffset);
+}
+
+export function calculateMandiEx(birthDate, lat, lng, ayanamsaOffset, mode, offsetType) {
+  const observer = new Astronomy.Observer(lat, lng, 0);
+  const utcMidnight = new Date(Date.UTC(
+    birthDate.getUTCFullYear(), birthDate.getUTCMonth(), birthDate.getUTCDate(), 0, 0, 0
+  ));
+  const nextUtcMidnight = new Date(utcMidnight.getTime() + 86400000);
+
+  const rise = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, 1, utcMidnight, 2);
+  const set = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, -1, utcMidnight, 2);
+  const nextRise = Astronomy.SearchRiseSet(Astronomy.Body.Sun, observer, 1, nextUtcMidnight, 2);
+
+  let sunriseDate, sunsetDate, nextSunriseDate;
+  if (rise && set) {
+    sunriseDate = rise.date || rise;
+    sunsetDate = set.date || set;
+    nextSunriseDate = nextRise ? (nextRise.date || nextRise) : new Date(sunriseDate.getTime() + 86400000);
+  } else {
+    sunriseDate = new Date(birthDate);
+    sunriseDate.setHours(6, 0, 0, 0);
+    sunsetDate = new Date(birthDate);
+    sunsetDate.setHours(18, 0, 0, 0);
+    nextSunriseDate = new Date(sunriseDate.getTime() + 86400000);
+  }
+
+  const dayDuration = sunsetDate.getTime() - sunriseDate.getTime();
+  const nightDuration = nextSunriseDate.getTime() - sunsetDate.getTime();
+  const isDaytime = birthDate.getTime() >= sunriseDate.getTime() && birthDate.getTime() < sunsetDate.getTime();
+  const jd = Astronomy.MakeTime(birthDate).ut + 2451545.0;
+  const dayOfWeek = ((Math.floor(jd + 1.5) % 7) + 7) % 7;
+
+  const useEighth = mode === "eighth";
+  const mandiPart = useEighth
+    ? (isDaytime ? C.DAYTIME_EIGHTH_PART[dayOfWeek] : C.NIGHTTIME_EIGHTH_PART[dayOfWeek])
+    : (isDaytime ? C.DAYTIME_SATURN_PART[dayOfWeek] : C.NIGHTTIME_SATURN_PART[dayOfWeek]);
+  const periodStart = isDaytime ? sunriseDate : sunsetDate;
+  const periodDuration = isDaytime ? dayDuration : nightDuration;
+  const partDuration = periodDuration / 8;
+
+  let offsetMs;
+  if (offsetType === "middle") offsetMs = partDuration / 2;
+  else if (offsetType === "end") offsetMs = partDuration;
+  else offsetMs = 0;
+
+  const mandiTime = new Date(periodStart.getTime() + (mandiPart - 1) * partDuration + offsetMs);
 
   return computeAscendantAtTime(mandiTime, lat, lng, ayanamsaOffset);
 }

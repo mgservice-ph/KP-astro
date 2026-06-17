@@ -3,7 +3,7 @@ import * as C from "./data/constants";
 import {
   getStellarData, formatArcMinutes, getBhavaIndex,
   computeVaara, computeThithi, computeYoga, computeKarana, computeThithiSoonya,
-  calculateMandi, computePlacidusSystem,
+  calculateMandi, calculateMandiEx, computePlacidusSystem,
   checkPushkarNavamsam, checkGuruAspect, checkPavagraha68Rule,
   checkPathagamDusthanaRule, checkEdgeIssue, checkMiruthiviPagai,
   checkVarkothaam, checkHouseCategory, buildEntity, buildEntityFromPlanet,
@@ -30,7 +30,7 @@ export default function App() {
   const [checkFilter, setCheckFilter] = useState("strength");
   const [config, setConfig] = useState({
     name: "Radha Iyer", dob: "", tob: "", location: "Mumbai, India",
-    latitude: 19.076, longitude: 72.8777, ayanamsa: "kp",
+    latitude: 19.076, longitude: 72.8777, ayanamsa: "kp", mandiMode: "kp",
   });
   const [computedData, setComputedData] = useState(null);
   const [panchanga, setPanchanga] = useState(null);
@@ -89,7 +89,9 @@ export default function App() {
     planets.push({ id: "rahu", name: "Rahu", absoluteLong: rSid, signIndex: Math.floor(rSid / 30), signDeg: rSid % 30, isRetro: 1 });
     planets.push({ id: "ketu", name: "Ketu", absoluteLong: kSid, signIndex: Math.floor(kSid / 30), signDeg: kSid % 30, isRetro: 1 });
     try {
-      const mLon = calculateMandi(targetDate, lat, lng, ayan);
+      const mLon = config.mandiMode === "jhora"
+        ? calculateMandiEx(targetDate, lat, lng, ayan, "eighth", "start")
+        : calculateMandi(targetDate, lat, lng, ayan);
       planets.push({ id: "mandi", name: "Mandi", absoluteLong: mLon, signIndex: Math.floor(mLon / 30), signDeg: mLon % 30, isRetro: 0 });
     } catch (e) {}
 
@@ -122,7 +124,7 @@ export default function App() {
       const aP = (yP + 186.6667) % 360;
       const yN = getStellarData(yP), aN = getStellarData(aP);
       pData = {
-        vaara: va, thithi: th.name, nakshatra: `${nak.nak.n} (${nak.starLord})`,
+        vaara: va, thithi: th.name, nakshatra: `${nak.nak.n} (${nak.starLordTamil})`,
         yoga: yo.name, karana: ka.name,
         dayLord: C.VAARA_LORDS[Math.floor(jd + 1.5) % 7],
         yogiAvayogi: { yogi: `${yN.starLordTamil} (${yN.nak.n})`, avayogi: `${aN.starLordTamil} (${aN.nak.n})`, yogiStar: yN.starLord, avayogiStar: aN.starLord },
@@ -142,13 +144,15 @@ export default function App() {
     const healthData = computeHealthCheck(planets, cusps, ascLong);
     const familyData = computeFamilyCheck(planets, cusps, ascLong);
     const jobData = computeJobCheck(planets, cusps, ascLong);
+    const sportData = computeSportCheck(planets, cusps, ascLong);
+    const religionData = computeReligionCheck(planets, cusps, ascLong);
 
-    setComputedData({ ...data, strData, brainData, muteData, purvaData, marriageData, healthData, familyData, jobData });
+    setComputedData({ ...data, strData, brainData, muteData, purvaData, marriageData, healthData, familyData, jobData, sportData, religionData });
     setPanchanga(pData);
     } catch (e) { setComputedData(null); setPanchanga(null); }
   }, [config]);
 
-  const computeTransitPlanets = useCallback((istDate, lat, lng, ayanMode) => {
+  const computeTransitPlanets = useCallback((istDate, lat, lng, ayanMode, mandiMode) => {
     if (typeof Astronomy === "undefined") return [];
     const at = Astronomy.MakeTime(istDate);
     const jd = at.ut + 2451545.0;
@@ -180,7 +184,9 @@ export default function App() {
     tPlanets.push({ id: "rahu", name: "Rahu", absoluteLong: rSid, signIndex: Math.floor(rSid / 30), signDeg: rSid % 30, isRetro: 1 });
     tPlanets.push({ id: "ketu", name: "Ketu", absoluteLong: kSid, signIndex: Math.floor(kSid / 30), signDeg: kSid % 30, isRetro: 1 });
     try {
-      const mLon = calculateMandi(istDate, lat, lng, ayan);
+      const mLon = mandiMode === "jhora"
+        ? calculateMandiEx(istDate, lat, lng, ayan, "eighth", "start")
+        : calculateMandi(istDate, lat, lng, ayan);
       tPlanets.push({ id: "mandi", name: "Mandi", absoluteLong: mLon, signIndex: Math.floor(mLon / 30), signDeg: mLon % 30, isRetro: 0 });
     } catch (e) {}
     tPlanets.push({ id: "asc", name: "Asc", absoluteLong: ascLong, signIndex: Math.floor(ascLong / 30), signDeg: ascLong % 30, isRetro: 0 });
@@ -189,35 +195,29 @@ export default function App() {
 
   const computeRpFromDate = useCallback((istDate) => {
     if (typeof Astronomy === "undefined") return;
-    const lat = 13.0827, lng = 80.2707;
+    const tLat = config.latitude || 0, tLng = config.longitude || 0;
+    const ayanam = config.ayanamsa || "kp";
+    const tp = computeTransitPlanets(istDate, tLat, tLng, ayanam, config.mandiMode || "kp");
+    if (!tp) return;
+    const asc = tp.find(p => p.id === "asc");
+    const moon = tp.find(p => p.id === "moon");
+    if (!asc || !moon) return;
+    const aSt = getStellarData(asc.absoluteLong);
+    const mSt = getStellarData(moon.absoluteLong);
+    const aSI = Math.floor(asc.absoluteLong / 30);
+    const aSL = C.LORDS_ORDER[C.RASI_DOMINIONS[aSI]];
     const at = Astronomy.MakeTime(istDate);
     const jd = at.ut + 2451545.0;
-    const ayan = C.BASELINE_AYANAMSAS.kp + (50.238 / 3600) * ((2000 + (jd - 2451545.0) / 365.25) - 2000);
-    const oR = (23.439291 - 0.0130042 * ((jd - 2451545.0) / 36525)) * Math.PI / 180;
-    const sH = Astronomy.SiderealTime(istDate);
-    const lD = ((sH * 15 + lng) % 360 + 360) % 360;
-    const lR = lat * Math.PI / 180, lM = lD * Math.PI / 180;
-    let aV = Math.atan2(-Math.cos(lM), Math.sin(oR) * Math.tan(lR) + Math.cos(oR) * Math.sin(lM)) * 180 / Math.PI;
-    aV = (aV + 180 + 360) % 360;
-    const cA = ((aV - ayan) % 360 + 360) % 360;
-    const mV = Astronomy.GeoVector(Astronomy.Body.Moon, istDate, true);
-    const mE = Astronomy.Ecliptic(mV);
-    const cM = ((mE.elon - ayan) % 360 + 360) % 360;
-    const aSt = getStellarData(cA), mSt = getStellarData(cM);
-    const aSI = Math.floor(cA / 30);
-    const aSL = C.LORDS_ORDER[C.RASI_DOMINIONS[aSI]];
     const dL = C.VAARA_LORDS[Math.floor(jd + 1.5) % 7];
-    const mSL = C.LORDS_ORDER[C.RASI_DOMINIONS[Math.floor(cM / 30)]];
+    const mSL = C.LORDS_ORDER[C.RASI_DOMINIONS[Math.floor(moon.absoluteLong / 30)]];
     setRpData({
       timestamp: istDate.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", hour12: true }),
-      lagna: `${C.ZODIAC_NAMES[aSI].s} ${C.ZODIAC_NAMES[aSI].n} (${formatArcMinutes(cA % 30)})`,
+      lagna: `${C.ZODIAC_NAMES[aSI].s} ${C.ZODIAC_NAMES[aSI].n} (${formatArcMinutes(asc.absoluteLong % 30)})`,
       rp0: dL, rp1: aSL, rp2: aSt.starLord, rp3: aSt.subLord,
       rp4: mSt.starLord, rp5: mSt.subLord, rp6: mSL,
     });
-    const tLat = config.latitude || 0, tLng = config.longitude || 0;
-    const tp = computeTransitPlanets(istDate, tLat, tLng, config.ayanamsa || "kp");
     setTransitPlanets(tp);
-  }, [computeTransitPlanets, config.latitude, config.longitude, config.ayanamsa]);
+  }, [computeTransitPlanets, config.latitude, config.longitude, config.ayanamsa, config.mandiMode]);
 
   useEffect(() => {
     if (config.dob && config.tob) handleCompute();
@@ -256,10 +256,12 @@ export default function App() {
   const healthEval = d?.healthData || [];
   const familyEval = d?.familyData || [];
   const jobEval = d?.jobData || [];
+  const sportEval = d?.sportData || [];
+  const religionData = d?.religionData;
 
-  const evalMap = { strength: strEval, brain: brainEval, mute: muteEval, purvapuniya: purvaEval, marriage: marriageEval, health: healthEval, family: familyEval, job: jobEval };
-  const entityIdMap = { strength: ["strLagnaLord","strLagnaStar","strAscLordStar","strMoonSign","strMoonStar"], brain: ["brainGuru","brainGuruStar","brainBudhan","brainBudhanStar","brainMoon","brainMoonStar"], mute: ["mute2ndLord","mute2ndLordStar","mute3rdLord","mute3rdLordStar"], purvapuniya: ["purva5thLord","purva5thLordStar"], marriage: ["marriage7thLord","marriage7thLordStar","marriageVenus","marriageVenusStar","marriage2ndLord","marriage2ndLordStar","marriage11thLord","marriage11thLordStar"], health: ["healthAscLord","healthAscLordStar","health6thLord","health6thLordStar","health8thLord","health8thLordStar"], family: ["familySun","familyMoon","familyMars","familyMercury","familyJupiter","familyVenus","familySaturn","familyRahu","familyKetu"], job: ["job10thLord","job2ndLord","jobSaturn","job11thLord"] };
-  const shortLabelMap = { strength: ["LL","LS","AL","ML","MS"], brain: ["G","GS","B","BS","M","MS"], mute: ["2L","2LS","3L","3LS"], purvapuniya: ["5L","5LS"], marriage: ["7L","7LS","V","VS","2L","2LS","11L","11LS"], health: ["AL","ALS","6L","6LS","8L","8LS"], family: ["Su","Mo","Ma","Me","Ju","Ve","Sa","Ra","Ke"], job: ["10","2","Sa","11"] };
+  const evalMap = { strength: strEval, brain: brainEval, mute: muteEval, purvapuniya: purvaEval, marriage: marriageEval, health: healthEval, family: familyEval, job: jobEval, sport: sportEval };
+  const entityIdMap = { strength: ["strLagnaLord","strLagnaStar","strAscLordStar","strMoonSign","strMoonStar"], brain: ["brainGuru","brainGuruStar","brainBudhan","brainBudhanStar","brainMoon","brainMoonStar"], mute: ["mute2ndLord","mute2ndLordStar","mute3rdLord","mute3rdLordStar"], purvapuniya: ["purva5thLord","purva5thLordStar"], marriage: ["marriage7thLord","marriage7thLordStar","marriageVenus","marriageVenusStar","marriage2ndLord","marriage2ndLordStar","marriage11thLord","marriage11thLordStar"], health: ["healthAscLord","health6thLord"], family: ["familySun","familyMoon","familyMars","familyMercury","familyJupiter","familyVenus","familySaturn","familyRahu","familyKetu"], job: ["job10thLord","job2ndLord","jobSaturn","job11thLord"], sport: ["sport3rdLord"] };
+  const shortLabelMap = { strength: ["LL","LS","AL","ML","MS"], brain: ["G","GS","B","BS","M","MS"], mute: ["2L","2LS","3L","3LS"], purvapuniya: ["5L","5LS"], marriage: ["7L","7LS","V","VS","2L","2LS","11L","11LS"], health: ["AL","6L"], family: ["Su","Mo","Ma","Me","Ju","Ve","Sa","Ra","Ke"], job: ["10","2","Sa","11"], sport: ["3L"] };
 
   const showChart = viewFilter === "all" || viewFilter === "charts";
   const showAnalytics = viewFilter === "all" || viewFilter === "tables";
@@ -281,7 +283,7 @@ export default function App() {
 
       <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap", marginBottom: 10 }}>
         <span style={{ fontSize: "0.75rem", color: "var(--muted)", marginRight: 4 }}>Check:</span>
-        {["all","strength","brain","mute","purvapuniya","marriage","health","family","job"].map(v => (
+        {["all","strength","brain","mute","purvapuniya","marriage","health","family","job","sport","religion"].map(v => (
           <button key={v} style={{
             padding: "4px 10px", borderRadius: "4px", cursor: "pointer", fontSize: "0.75rem",
             textTransform: "capitalize", transition: "background 0.2s",
@@ -311,7 +313,7 @@ export default function App() {
           <CheckSection title="Marriage check" data={marriageEval} meterId="marriage" tableId="marriageTableBody" entityIds={["marriage7thLord","marriage7thLordStar","marriageVenus","marriageVenusStar","marriage2ndLord","marriage2ndLordStar","marriage11thLord","marriage11thLordStar"]} shortLabels={["7L","7LS","V","VS","2L","2LS","11L","11LS"]} />
         </div>
         <div className="studio-card" style={{ marginBottom: 16 }}>
-          <CheckSection title="Health check" data={healthEval} meterId="health" tableId="healthTableBody" entityIds={["healthAscLord","healthAscLordStar","health6thLord","health6thLordStar","health8thLord","health8thLordStar"]} shortLabels={["AL","ALS","6L","6LS","8L","8LS"]} />
+          <CheckSection title="Health check" data={healthEval} meterId="health" tableId="healthTableBody" entityIds={["healthAscLord","health6thLord"]} shortLabels={["AL","6L"]} />
         </div>
         <div className="studio-card" style={{ marginBottom: 16 }}>
           <CheckSection title="Family check" data={familyEval} meterId="family" tableId="familyTableBody" entityIds={["familySun","familyMoon","familyMars","familyMercury","familyJupiter","familyVenus","familySaturn","familyRahu","familyKetu"]} shortLabels={["Su","Mo","Ma","Me","Ju","Ve","Sa","Ra","Ke"]} />
@@ -319,20 +321,46 @@ export default function App() {
         <div className="studio-card" style={{ marginBottom: 16 }}>
           <CheckSection title="Job check" data={jobEval} meterId="job" tableId="jobTableBody" entityIds={["job10thLord","job2ndLord","jobSaturn","job11thLord"]} shortLabels={["10","2","Sa","11"]} />
         </div>
-      </>) : (
+        <div className="studio-card" style={{ marginBottom: 16 }}>
+          <CheckSection title="Sport check" data={sportEval} meterId="sport" tableId="sportTableBody" entityIds={["sport3rdLord"]} shortLabels={["3L"]} />
+        </div>
+        {religionData && <div className="studio-card" style={{ marginBottom: 16, borderTop: "3px solid " + (religionData.classification === "North" ? "#D4A017" : religionData.classification === "West" ? "#3B82F6" : "#22C55E") }}>
+          <h3 style={{ margin: "0 0 8px 0", fontSize: "0.9rem" }}>Religion check</h3>
+          <div style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: 8, color: religionData.classification === "North" ? "#D4A017" : religionData.classification === "West" ? "#3B82F6" : "#22C55E" }}>{religionData.classification}</div>
+          <table style={{ width: "100%", fontSize: "0.75rem", borderCollapse: "collapse" }}>
+            <thead><tr><th style={{ textAlign: "left", padding: "2px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Entity</th><th style={{ textAlign: "left", padding: "2px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Star Lord</th></tr></thead>
+            <tbody>{religionData.items.map((item, i) => (
+              <tr key={i}><td style={{ padding: "2px 4px" }}>{item.label}</td><td style={{ padding: "2px 4px", color: item.starLord === "Rah" ? "#9933FF" : item.starLord === "Ket" ? "#CC6600" : "var(--text)" }}>{item.starLord}</td></tr>
+            ))}</tbody>
+          </table>
+          <div style={{ fontSize: "0.7rem", color: "var(--muted)", marginTop: 6 }}>Rahu: {religionData.rahuCount}/4 | Ketu: {religionData.ketuCount}/4</div>
+        </div>}
+      </>) : checkFilter === "religion" ? (
+        religionData && <div className="studio-card" style={{ marginBottom: 16 }}>
+          <h3 style={{ margin: "0 0 8px 0", fontSize: "0.9rem" }}>Religion check</h3>
+          <div style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: 8, color: religionData.classification === "North" ? "#D4A017" : religionData.classification === "West" ? "#3B82F6" : "#22C55E" }}>{religionData.classification}</div>
+          <table style={{ width: "100%", fontSize: "0.75rem", borderCollapse: "collapse" }}>
+            <thead><tr><th style={{ textAlign: "left", padding: "2px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Entity</th><th style={{ textAlign: "left", padding: "2px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Star Lord</th></tr></thead>
+            <tbody>{religionData.items.map((item, i) => (
+              <tr key={i}><td style={{ padding: "2px 4px" }}>{item.label}</td><td style={{ padding: "2px 4px", color: item.starLord === "Rah" ? "#9933FF" : item.starLord === "Ket" ? "#CC6600" : "var(--text)" }}>{item.starLord}</td></tr>
+            ))}</tbody>
+          </table>
+          <div style={{ fontSize: "0.7rem", color: "var(--muted)", marginTop: 6 }}>Rahu: {religionData.rahuCount}/4 | Ketu: {religionData.ketuCount}/4</div>
+        </div>
+      ) : (
         <div className="studio-card" style={{ marginBottom: 16 }}>
           <CheckSection title={checkFilter.charAt(0).toUpperCase() + checkFilter.slice(1) + " check"} data={evalMap[checkFilter]} meterId={checkFilter} tableId={checkFilter + "TableBody"} entityIds={entityIdMap[checkFilter]} shortLabels={shortLabelMap[checkFilter]} />
         </div>
       )}
 
       {d && (<div style={{ display: showChart ? "block" : "none", marginBottom: 24 }}>
-        <ChartGrid planets={d.planets} cusps={d.cusps} ascendantAbsoluteLong={d.ascendantAbsoluteLong} panchanga={panchanga} birthTime={d.birthTime} config={config} transitPlanets={transitPlanets} />
+        <ChartGrid planets={d.planets} cusps={d.cusps} ascendantAbsoluteLong={d.ascendantAbsoluteLong} panchanga={panchanga} birthTime={d.birthTime} config={config} transitPlanets={transitPlanets} onConfigChange={setConfig} />
       </div>)}
 
       {d && (<div id="analyticsContainer" style={{ display: showAnalytics ? "block" : "none" }}>
         <PlanetTable planets={d.planets} cusps={d.cusps} ascendantAbsoluteLong={d.ascendantAbsoluteLong} />
         <div className="studio-card">
-          <h3>Chronological Vimshottari Nested Dropdowns</h3>
+          <h3>Vimshottari Dasha Chart</h3>
           <DashaTree moonLong={d.planets.find(p => p.id === "moon")?.absoluteLong || 0} birthTime={d.birthTime} onActiveDashaChange={setActiveDasha} />
         </div>
         <CuspHouse cusps={d.cusps} planets={d.planets} />
@@ -343,7 +371,7 @@ export default function App() {
   );
 }
 
-function evaluateEntity(entity, planets, cusps, ascLong, skipGuru) {
+function evaluateEntity(entity, planets, cusps, ascLong, skipGuru, skipPavagraha) {
   const sr = [], wr = [];
   const h = checkHouseCategory(entity.bhavaIdx);
   const d = entity.dignity;
@@ -383,7 +411,7 @@ function evaluateEntity(entity, planets, cusps, ascLong, skipGuru) {
   if (mp.isAffected) wr.push("Miruthivi Pagai — " + mp.label);
 
   let p68 = { hasPavagrahaIn68: false, enemyStarLordFound: false };
-  if (C.PAVAGRAHA_TARGETS.includes(entity.label)) {
+  if (!skipPavagraha && C.PAVAGRAHA_TARGETS.includes(entity.label)) {
     p68 = checkPavagraha68Rule(entity, planets, cusps);
     if (p68.hasPavagrahaIn68) wr.push("Pavagraha in 6th/8th bhava");
     if (p68.enemyStarLordFound) wr.push("Enemy star lord from 6th/8th bhava");
@@ -463,11 +491,51 @@ function computeMarriageCheck(planets, cusps, ascLong) {
   const vP = planets.find(p => p.id === "venus");
   const l7SC = l7P ? getStellarData(l7P.absoluteLong).starLord : "", l2SC = l2P ? getStellarData(l2P.absoluteLong).starLord : "", l11SC = l11P ? getStellarData(l11P.absoluteLong).starLord : "", vSC = vP ? getStellarData(vP.absoluteLong).starLord : "";
   let ents = [buildEntity("7th Lord", l7C, planets, cusps, ascLong), buildEntity("7th Lord Star Ld", l7SC, planets, cusps, ascLong), vP ? buildEntityFromPlanet("Venus", vP, cusps, planets) : null, buildEntity("Venus Star Ld", vSC, planets, cusps, ascLong), buildEntity("2nd Lord", l2C, planets, cusps, ascLong), buildEntity("2nd Lord Star Ld", l2SC, planets, cusps, ascLong), buildEntity("11th Lord", l11C, planets, cusps, ascLong), buildEntity("11th Lord Star Ld", l11SC, planets, cusps, ascLong)].filter(Boolean);
-  let res = ents.map(e => ({ entity: e, evaluation: evaluateEntity(e, planets, cusps, ascLong, true) }));
+  let res = ents.map(e => ({ entity: e, evaluation: evaluateEntity(e, planets, cusps, ascLong, true, true) }));
   res.forEach(r => {
     if (C.MARRIAGE_PATHAGAM_2ND.includes(r.entity.label)) {
       const pd = checkPathagamDusthanaRule({ ...r.entity, ascendantAbsoluteLong: ascLong }, cusps, planets);
       if (pd.hasIssue) { pd.reasons.forEach(x => r.evaluation.weakReasons.push("Pathagam/Dusthana: " + x)); r.evaluation.status = "WEAK"; r.evaluation.score -= 2; }
+    }
+    const bhava6 = ((r.entity.bhavaIdx + 4) % 12) + 1, bhava8 = ((r.entity.bhavaIdx + 6) % 12) + 1;
+    const pavIn68 = planets.filter(p => [bhava6, bhava8].includes(getBhavaIndex(p.absoluteLong, cusps)) && C.PAVAGRAHAS.includes(C.PLANET_TO_LORD_MAP[p.name]));
+    for (const pp of pavIn68) {
+      const eSl = r.entity.starLord, pSl = getStellarData(pp.absoluteLong).starLord;
+      if ((C.ENEMY_MAP[eSl] || []).includes(pSl) && (C.ENEMY_MAP[pSl] || []).includes(eSl)) {
+        r.evaluation.weakReasons.push(`Pavagraha ${pp.name} in 6th/8th — enemy star lords`);
+        r.evaluation.score -= 5; if (r.evaluation.status === "MEDIUM") r.evaluation.status = "WEAK"; break;
+      }
+    }
+    const slN = C.STAR_TO_PLANET[r.entity.starLord];
+    const slP = planets.find(p => p.name === slN);
+    if (slP) {
+      const sC = C.PLANET_TO_LORD_MAP[slN];
+      const sD = C.SIGN_DIGNITY[slP.signIndex];
+      if (sD && sD.neecham === sC) {
+        r.evaluation.weakReasons.push(`${slN} (star lord of ${r.entity.planetName}) is Neecham`);
+        r.evaluation.score -= 2; if (r.evaluation.status === "MEDIUM") r.evaluation.status = "WEAK";
+      }
+      const sL = planets.find(p => p.id === "sun")?.absoluteLong || 0;
+      const dI = Math.min(Math.abs((slP.absoluteLong - sL + 360) % 360), 360 - Math.abs((slP.absoluteLong - sL + 360) % 360));
+      const CO = { venus: 9, mercury: 13, mars: 17, jupiter: 11, saturn: 15 };
+      if (CO[slP.id] && dI <= CO[slP.id] && slP.id !== "sun") {
+        r.evaluation.weakReasons.push(`${slN} (star lord of ${r.entity.planetName}) is Combust`);
+        r.evaluation.score -= 2; if (r.evaluation.status === "MEDIUM") r.evaluation.status = "WEAK";
+      }
+    }
+    const l8C = C.LORDS_ORDER[C.RASI_DOMINIONS[(aSI + 7) % 12]];
+    const slCode = C.PLANET_TO_LORD_MAP[C.STAR_TO_PLANET[r.entity.starLord]];
+    if (slCode === l8C) {
+      r.evaluation.weakReasons.push(r.entity.starLord + " (star lord) is 8th lord");
+      r.evaluation.score -= 2; if (r.evaluation.status === "MEDIUM") r.evaluation.status = "WEAK";
+    }
+    const slPlanet = planets.find(p => p.name === C.STAR_TO_PLANET[r.entity.starLord]);
+    if (slPlanet) {
+      const slBhava = getBhavaIndex(slPlanet.absoluteLong, cusps);
+      if (slBhava === 6 || slBhava === 8 || slBhava === 12) {
+        r.evaluation.weakReasons.push(slPlanet.name + " (star lord of " + r.entity.planetName + ") in H" + slBhava);
+        r.evaluation.score -= 2; if (r.evaluation.status === "MEDIUM") r.evaluation.status = "WEAK";
+      }
     }
   });
   return res;
@@ -475,34 +543,122 @@ function computeMarriageCheck(planets, cusps, ascLong) {
 
 function computeHealthCheck(planets, cusps, ascLong) {
   const aSI = Math.floor(ascLong / 30);
-  const aSLC = C.LORDS_ORDER[C.RASI_DOMINIONS[aSI]], l6C = C.LORDS_ORDER[C.RASI_DOMINIONS[(aSI + 5) % 12]], l8C = C.LORDS_ORDER[C.RASI_DOMINIONS[(aSI + 7) % 12]];
-  const ents = [buildEntity("Asc Lord", aSLC, planets, cusps, ascLong), buildEntity("6th Lord", l6C, planets, cusps, ascLong), buildEntity("8th Lord", l8C, planets, cusps, ascLong)].filter(Boolean);
-  return ents.map(e => {
-    const wr = []; let sc = 0; const d = e.dignity;
-    if (d.isNeecham) { wr.push("Neecham"); sc -= 2; } if (d.isPagai) { wr.push("Pagai"); sc -= 1; }
-    if (e.isCombust) { wr.push("Combust"); sc -= 2; } if (e.isGrahana) { wr.push("Grahana Dosha"); sc -= 2; } if (e.isTrikona) { wr.push("Trikona Grahana"); sc -= 2; }
-    const eg = checkEdgeIssue(e.signIdx, e.signDeg); if (eg.hasIssue) { wr.push("Edge: " + eg.label); sc -= 2; }
-    const mp = checkMiruthiviPagai(e.nakIdx, e.pada); if (mp.isAffected) { wr.push("Miruthivi Pagai — " + mp.label); sc -= 2; }
-    const p68 = checkPavagraha68Rule(e, planets, cusps); if (p68.hasPavagrahaIn68) { wr.push("Pavagraha in 6th/8th bhava"); sc -= 2; } if (p68.enemyStarLordFound) { wr.push("Enemy star lord from 6th/8th bhava"); sc -= 3; }
-    let st = sc >= 0 ? "MEDIUM" : "WEAK";
-    const gu = checkGuruAspect(e.bhavaIdx, e.label, planets, cusps); if (gu.hasAspect && st === "WEAK") { st = "MEDIUM"; sc += 2; }
-    return { entity: e, evaluation: { status: st, score: sc, strongReasons: gu.hasAspect ? ["Guru aspect remedy — " + gu.reason] : [], weakReasons: wr, guruAspect: gu.hasAspect } };
-  });
+  const ascLordCode = C.LORDS_ORDER[C.RASI_DOMINIONS[aSI]];
+  const l6C = C.LORDS_ORDER[C.RASI_DOMINIONS[(aSI + 5) % 12]];
+  const l8C = C.LORDS_ORDER[C.RASI_DOMINIONS[(aSI + 7) % 12]];
+
+  const ascEntity = buildEntity("Asc Lord", ascLordCode, planets, cusps, ascLong);
+  const l6Entity = buildEntity("6th Lord", l6C, planets, cusps, ascLong);
+  if (!ascEntity || !l6Entity) return [];
+
+  const aspectsOrSitsH1 = (planet) => {
+    const b = getBhavaIndex(planet.absoluteLong, cusps);
+    return b === 1 || b === 7;
+  };
+
+  const ascSlName = C.STAR_TO_PLANET[ascEntity.starLord];
+  const l6SlName = C.STAR_TO_PLANET[l6Entity.starLord];
+  const ascSlPlanet = planets.find(p => p.name === ascSlName);
+  const l6SlPlanet = planets.find(p => p.name === l6SlName);
+
+  const sameStarLord = ascEntity.starLord === l6Entity.starLord;
+  let exchange = false;
+  if (ascSlPlanet && l6SlPlanet) {
+    exchange = getStellarData(ascSlPlanet.absoluteLong).starLord === l6Entity.starLord
+      && getStellarData(l6SlPlanet.absoluteLong).starLord === ascEntity.starLord;
+  }
+
+  const ascWr = [];
+  let ascSc = 0;
+  const ascBhava = ascEntity.bhavaIdx;
+
+  if ([6, 8, 12].includes(ascBhava) && ascSlPlanet) {
+    const slBhava = getBhavaIndex(ascSlPlanet.absoluteLong, cusps);
+    if ([6, 8].includes(slBhava)) {
+      ascWr.push(`Asc Lord in H${ascBhava} — star lord in H${slBhava}`); ascSc -= 3;
+    }
+  }
+
+  if (ascEntity.dignity.isNeecham && ascEntity.isCombust && ascBhava === 1) {
+    const pavOnAsc = planets.filter(p => C.PAVAGRAHAS.includes(C.PLANET_TO_LORD_MAP[p.name]) && aspectsOrSitsH1(p));
+    const l6P = planets.find(p => p.name === C.STAR_TO_PLANET[l6C]);
+    const l8P = planets.find(p => p.name === C.STAR_TO_PLANET[l8C]);
+    if (pavOnAsc.length > 0 && ((l6P && aspectsOrSitsH1(l6P)) || (l8P && aspectsOrSitsH1(l8P)))) {
+      ascWr.push("Asc Lord neecham/combust in H1 — Pavagraha+6L/8L influence on Asc"); ascSc -= 3;
+    }
+  }
+
+  const ascWithPav = planets.filter(p => C.PAVAGRAHAS.includes(C.PLANET_TO_LORD_MAP[p.name]) && getBhavaIndex(p.absoluteLong, cusps) === ascBhava);
+  if (ascWithPav.length > 0) {
+    const slInH8 = ascSlPlanet && getBhavaIndex(ascSlPlanet.absoluteLong, cusps) === 8;
+    if (slInH8 || ascEntity.dignity.isNeecham || ascEntity.isCombust) {
+      const parts = ["Asc Lord conjunct Pavagraha"];
+      if (ascEntity.dignity.isNeecham) parts.push("neecham");
+      if (ascEntity.isCombust) parts.push("combust");
+      if (slInH8) parts.push("star lord in H8");
+      ascWr.push(parts.join(" — ")); ascSc -= 3;
+    }
+  }
+
+  if (sameStarLord) { ascWr.push(`Asc Lord and 6th Lord share star lord (${ascEntity.starLord})`); ascSc -= 3; }
+  if (exchange) { ascWr.push("Star lord exchange between Asc Lord and 6th Lord"); ascSc -= 5; }
+
+  const l6Wr = [];
+  let l6Sc = 0;
+
+  if (l6Entity.bhavaIdx === 6 && l6SlPlanet && getBhavaIndex(l6SlPlanet.absoluteLong, cusps) === 1) {
+    l6Wr.push("6th Lord in H6 — star lord in Ascendant"); l6Sc -= 3;
+  }
+
+  if ([8, 12].includes(l6Entity.bhavaIdx) && l6SlPlanet && getBhavaIndex(l6SlPlanet.absoluteLong, cusps) === 1) {
+    l6Wr.push(`6th Lord in H${l6Entity.bhavaIdx} — star lord in Ascendant`); l6Sc -= 3;
+  }
+
+  if (sameStarLord) { l6Wr.push(`6th Lord and Asc Lord share star lord (${l6Entity.starLord})`); l6Sc -= 3; }
+  if (exchange) { l6Wr.push("Star lord exchange between 6th Lord and Asc Lord"); l6Sc -= 5; }
+
+  return [
+    { entity: ascEntity, evaluation: { status: ascSc < 0 ? "WEAK" : "MEDIUM", score: ascSc, strongReasons: [], weakReasons: ascWr, guruAspect: false } },
+    { entity: l6Entity, evaluation: { status: l6Sc < 0 ? "WEAK" : "MEDIUM", score: l6Sc, strongReasons: [], weakReasons: l6Wr, guruAspect: false } }
+  ];
 }
 
 function computeFamilyCheck(planets, cusps, ascLong) {
   const fps = [{id:"sun",n:"Sun",l:"Sun (Father)"},{id:"moon",n:"Moon",l:"Moon (Mother)"},{id:"mars",n:"Mars",l:"Mars (Siblings)"},{id:"mercury",n:"Mercury",l:"Mercury (Maternal)"},{id:"jupiter",n:"Jupiter",l:"Jupiter (Children)"},{id:"venus",n:"Venus",l:"Venus (Wife)"},{id:"saturn",n:"Saturn",l:"Saturn (Elders)"},{id:"rahu",n:"Rahu",l:"Rahu (Maternal GP)"},{id:"ketu",n:"Ketu",l:"Ketu (Paternal GP)"}];
   const ents = fps.map(f => { const p = planets.find(x => x.name === f.n); return p ? buildEntityFromPlanet(f.l, p, cusps, planets) : null; }).filter(Boolean);
   return ents.map(e => {
-    const wr = []; let sc = 0; const d = e.dignity;
+    const wr = []; const sr = []; let sc = 0; const d = e.dignity;
     if (d.isNeecham) { wr.push("Neecham"); sc -= 2; } if (d.isPagai) { wr.push("Pagai"); sc -= 1; }
     if (e.isCombust) { wr.push("Combust"); sc -= 2; } if (e.isGrahana) { wr.push("Grahana Dosha"); sc -= 2; } if (e.isTrikona) { wr.push("Trikona Grahana"); sc -= 2; }
     const eg = checkEdgeIssue(e.signIdx, e.signDeg); if (eg.hasIssue) { wr.push("Edge: " + eg.label); sc -= 2; }
     const mp = checkMiruthiviPagai(e.nakIdx, e.pada); if (mp.isAffected) { wr.push("Miruthivi Pagai — " + mp.label); sc -= 2; }
-    const p68 = checkPavagraha68Rule(e, planets, cusps); if (p68.hasPavagrahaIn68) { wr.push("Pavagraha in 6th/8th bhava"); sc -= 2; } if (p68.enemyStarLordFound) { wr.push("Enemy star lord from 6th/8th bhava"); sc -= 3; }
+    const hc = checkHouseCategory(e.bhavaIdx);
+    if (hc.isKendra || hc.isTrikona) { sr.push(`Kendra/Trikona H${e.bhavaIdx}`); sc += 2; }
+    const bhava6 = ((e.bhavaIdx + 4) % 12) + 1, bhava8 = ((e.bhavaIdx + 6) % 12) + 1;
+    const pavIn68 = planets.filter(p => [bhava6, bhava8].includes(getBhavaIndex(p.absoluteLong, cusps)) && C.PAVAGRAHAS.includes(C.PLANET_TO_LORD_MAP[p.name]));
+    for (const pp of pavIn68) {
+      const eSl = e.starLord, pSl = getStellarData(pp.absoluteLong).starLord;
+      if ((C.ENEMY_MAP[eSl] || []).includes(pSl) && (C.ENEMY_MAP[pSl] || []).includes(eSl)) {
+        wr.push(`Pavagraha ${pp.name} in 6th/8th — enemy star lords`); sc -= 5; break;
+      }
+    }
+    const slN = C.STAR_TO_PLANET[e.starLord];
+    const slP = planets.find(p => p.name === slN);
+    if (slP) {
+      const sC = C.PLANET_TO_LORD_MAP[slN];
+      const sD = C.SIGN_DIGNITY[slP.signIndex];
+      if (sD && sD.neecham === sC) { wr.push(`${slN} (star lord of ${e.planetName}) is Neecham`); sc -= 2; }
+      const sL = planets.find(p => p.id === "sun")?.absoluteLong || 0;
+      const dI = Math.min(Math.abs((slP.absoluteLong - sL + 360) % 360), 360 - Math.abs((slP.absoluteLong - sL + 360) % 360));
+      const CO = { venus: 9, mercury: 13, mars: 17, jupiter: 11, saturn: 15 };
+      if (CO[slP.id] && dI <= CO[slP.id] && slP.id !== "sun") { wr.push(`${slN} (star lord of ${e.planetName}) is Combust`); sc -= 2; }
+      const sB = getBhavaIndex(slP.absoluteLong, cusps);
+      if (sB === 6 || sB === 8 || sB === 12) { wr.push(`${slN} (star lord of ${e.planetName}) in H${sB}`); sc -= 2; }
+    }
     let st = sc >= 0 ? "MEDIUM" : "WEAK";
     const gu = checkGuruAspect(e.bhavaIdx, e.label, planets, cusps); if (gu.hasAspect && st === "WEAK") { st = "MEDIUM"; sc += 2; }
-    return { entity: e, evaluation: { status: st, score: sc, strongReasons: gu.hasAspect ? ["Guru aspect remedy — " + gu.reason] : [], weakReasons: wr, guruAspect: gu.hasAspect } };
+    if (gu.hasAspect) { sr.push("Guru aspect remedy — " + gu.reason); }
+    return { entity: e, evaluation: { status: st, score: sc, strongReasons: sr, weakReasons: wr, guruAspect: gu.hasAspect } };
   });
 }
 
@@ -512,15 +668,121 @@ function computeJobCheck(planets, cusps, ascLong) {
   const sP = planets.find(p => p.name === "Saturn");
   const ents = [buildEntity("10th Lord (Career)", l10C, planets, cusps, ascLong), buildEntity("2nd Lord (Finance)", l2C, planets, cusps, ascLong), sP ? buildEntityFromPlanet("Saturn (Karma)", sP, cusps, planets) : null, buildEntity("11th Lord (Gains)", l11C, planets, cusps, ascLong)].filter(Boolean);
   return ents.map(e => {
-    const wr = []; let sc = 0; const d = e.dignity;
+    const wr = []; const sr = []; let sc = 0; const d = e.dignity;
     if (d.isNeecham) { wr.push("Neecham"); sc -= 2; } if (d.isPagai) { wr.push("Pagai"); sc -= 1; } if (e.isCombust) { wr.push("Combust"); sc -= 2; }
-    const p68 = checkPavagraha68Rule(e, planets, cusps); if (p68.hasPavagrahaIn68) { wr.push("Pavagraha in 6th/8th bhava"); sc -= 2; } if (p68.enemyStarLordFound) { wr.push("Enemy star lord from 6th/8th bhava"); sc -= 3; }
+    const hc = checkHouseCategory(e.bhavaIdx);
+    if (hc.isKendra || hc.isTrikona) { sr.push(`Kendra/Trikona H${e.bhavaIdx}`); sc += 2; }
+    const bhava6 = ((e.bhavaIdx + 4) % 12) + 1, bhava8 = ((e.bhavaIdx + 6) % 12) + 1;
+    const planetsIn68 = planets.filter(p => [bhava6, bhava8].includes(getBhavaIndex(p.absoluteLong, cusps)));
+    if (planetsIn68.some(p => p.name === "Saturn")) { wr.push("Saturn in 6th/8th bhava"); sc -= 2; }
+    const entityCode = C.PLANET_TO_LORD_MAP[e.planetName];
+    let enemyStarLordFound = false;
+    if (entityCode) {
+      const enemyCodes = C.ENEMY_MAP[entityCode] || [];
+      for (const p of planetsIn68) {
+        if (enemyCodes.includes(getStellarData(p.absoluteLong).starLord)) { enemyStarLordFound = true; break; }
+      }
+    }
+    if (enemyStarLordFound) { wr.push("Enemy star lord from 6th/8th bhava"); sc -= 3; }
+    const saturnP = planets.find(p => p.name === "Saturn");
+    const ketuP = planets.find(p => p.name === "Ketu");
+    if (saturnP && ketuP) {
+      const satBhava = getBhavaIndex(saturnP.absoluteLong, cusps);
+      const ketuBhava = getBhavaIndex(ketuP.absoluteLong, cusps);
+      const bhavaDiff = ((ketuBhava - satBhava + 12) % 12);
+      if (bhavaDiff === 5 || bhavaDiff === 7) {
+        wr.push("Ketu in 6th/8th from Saturn"); sc -= 2;
+        const satStarLord = getStellarData(saturnP.absoluteLong).starLord;
+        const ketuStarLord = getStellarData(ketuP.absoluteLong).starLord;
+        const satCode = C.PLANET_TO_LORD_MAP["Saturn"];
+        const ketuCode = C.PLANET_TO_LORD_MAP["Ketu"];
+        const satEnemyCodes = C.ENEMY_MAP[satCode] || [];
+        const ketuEnemyCodes = C.ENEMY_MAP[ketuCode] || [];
+        const satStarLordEnemies = C.ENEMY_MAP[satStarLord] || [];
+        const ketuStarLordEnemies = C.ENEMY_MAP[ketuStarLord] || [];
+        if (satEnemyCodes.includes(ketuStarLord) || ketuEnemyCodes.includes(satStarLord)
+            || satStarLordEnemies.includes(ketuStarLord) || ketuStarLordEnemies.includes(satStarLord)) {
+          wr.push("Saturn-Ketu enemy star lords"); sc -= 5;
+        }
+      }
+    }
+    const slName = C.STAR_TO_PLANET[e.starLord];
+    const slPlanet = planets.find(p => p.name === slName);
+    if (slPlanet) {
+      const slCode = C.PLANET_TO_LORD_MAP[slName];
+      const slDignity = C.SIGN_DIGNITY[slPlanet.signIndex];
+      if (slDignity && slDignity.neecham === slCode) {
+        wr.push(`${slName} (star lord of ${e.planetName}) is Neecham`); sc -= 2;
+      }
+      const sunLong = planets.find(p => p.id === "sun")?.absoluteLong || 0;
+      const diff = Math.min(Math.abs((slPlanet.absoluteLong - sunLong + 360) % 360), 360 - Math.abs((slPlanet.absoluteLong - sunLong + 360) % 360));
+      const COMBUST_ORBS = { venus: 9, mercury: 13, mars: 17, jupiter: 11, saturn: 15 };
+      if (COMBUST_ORBS[slPlanet.id] && diff <= COMBUST_ORBS[slPlanet.id] && slPlanet.id !== "sun") {
+        wr.push(`${slName} (star lord of ${e.planetName}) is Combust`); sc -= 2;
+      }
+      const l8C = C.LORDS_ORDER[C.RASI_DOMINIONS[(aSI + 7) % 12]];
+      if (slCode === l8C) {
+        wr.push(`${slName} (star lord of ${e.planetName}) is 8th lord`); sc -= 2;
+      }
+    }
     let st = sc >= 0 ? "MEDIUM" : "WEAK";
-    const gu = checkGuruAspect(e.bhavaIdx, e.label, planets, cusps); if (gu.hasAspect && st === "WEAK") { st = "MEDIUM"; sc += 2; }
+    const gu = checkGuruAspect(e.bhavaIdx, e.label, planets, cusps); if (gu.hasAspect && st === "WEAK") { st = "MEDIUM"; sc += 2; sr.push("Guru aspect remedy — " + gu.reason); }
     const sC = e.starLord;
     const sPN = C.STAR_TO_PLANET[sC] || "";
     const sPl = planets.find(p => p.name === sPN);
-    if (sPl) { const sB = getBhavaIndex(sPl.absoluteLong, cusps); if ((sB === 6 || sB === 8 || sB === 12) && st === "WEAK") { st = "MEDIUM"; wr.push(`Star lord in ${C.ROMAN[sB-1]} bhava — upgraded to average`); } }
-    return { entity: e, evaluation: { status: st, score: sc, strongReasons: gu.hasAspect ? ["Guru aspect remedy — " + gu.reason] : [], weakReasons: wr, guruAspect: gu.hasAspect } };
+    if (sPl) { const sB = getBhavaIndex(sPl.absoluteLong, cusps); if ((sB === 6 || sB === 8 || sB === 12) && st === "WEAK") { st = "MEDIUM"; wr.push(`Star lord in ${sB} bhava — upgraded to average`); } }
+    return { entity: e, evaluation: { status: st, score: sc, strongReasons: sr, weakReasons: wr, guruAspect: gu.hasAspect } };
   });
+}
+
+function computeSportCheck(planets, cusps, ascLong) {
+  const aSI = Math.floor(ascLong / 30);
+  const l3C = C.LORDS_ORDER[C.RASI_DOMINIONS[(aSI + 2) % 12]];
+  const e = buildEntity("3rd Lord (Sport)", l3C, planets, cusps, ascLong);
+  if (!e) return [];
+  const wr = []; let sc = 0, slIssue = false;
+  const slN = C.STAR_TO_PLANET[e.starLord];
+  const slP = planets.find(p => p.name === slN);
+  if (slP) {
+    const sC = C.PLANET_TO_LORD_MAP[slN];
+    const sD = C.SIGN_DIGNITY[slP.signIndex];
+    if (sD && sD.neecham === sC) { wr.push(`${slN} (star lord of ${e.planetName}) is Neecham`); sc -= 2; slIssue = true; }
+    const sL = planets.find(p => p.id === "sun")?.absoluteLong || 0;
+    const dI = Math.min(Math.abs((slP.absoluteLong - sL + 360) % 360), 360 - Math.abs((slP.absoluteLong - sL + 360) % 360));
+    const CO = { venus: 9, mercury: 13, mars: 17, jupiter: 11, saturn: 15 };
+    if (CO[slP.id] && dI <= CO[slP.id] && slP.id !== "sun") { wr.push(`${slN} (star lord of ${e.planetName}) is Combust`); sc -= 2; slIssue = true; }
+    const sB = getBhavaIndex(slP.absoluteLong, cusps);
+    if (sB === 8 || sB === 12) { wr.push(`${slN} (star lord of ${e.planetName}) in H${sB}`); sc -= 2; slIssue = true; }
+  }
+  if (e.isCombust) { wr.push("3rd Lord is Combust"); sc -= 2; }
+  if ((e.bhavaIdx === 8 || e.bhavaIdx === 12) && slIssue) { wr.push(`3rd Lord in H${e.bhavaIdx}`); sc -= 2; }
+  let st = sc >= 0 ? "MEDIUM" : "WEAK";
+  return [{ entity: e, evaluation: { status: st, score: sc, strongReasons: [], weakReasons: wr, guruAspect: false } }];
+}
+
+function computeReligionCheck(planets, cusps, ascLong) {
+  const aSI = Math.floor(ascLong / 30);
+  const aSC = C.LORDS_ORDER[C.RASI_DOMINIONS[aSI]];
+  const l5C = C.LORDS_ORDER[C.RASI_DOMINIONS[(aSI + 4) % 12]];
+  const l9C = C.LORDS_ORDER[C.RASI_DOMINIONS[(aSI + 8) % 12]];
+  const ascStar = getStellarData(ascLong).starLord;
+  const aLP = planets.find(p => p.name === C.STAR_TO_PLANET[aSC]);
+  const ascLordStar = aLP ? getStellarData(aLP.absoluteLong).starLord : "";
+  const l5P = planets.find(p => p.name === C.STAR_TO_PLANET[l5C]);
+  const lord5Star = l5P ? getStellarData(l5P.absoluteLong).starLord : "";
+  const l9P = planets.find(p => p.name === C.STAR_TO_PLANET[l9C]);
+  const lord9Star = l9P ? getStellarData(l9P.absoluteLong).starLord : "";
+  const items = [
+    { label: "Asc Star", starLord: ascStar },
+    { label: "Asc Lord Star", starLord: ascLordStar },
+    { label: "5th Lord Star", starLord: lord5Star },
+    { label: "9th Lord Star", starLord: lord9Star }
+  ];
+  const rahuCount = items.filter(i => i.starLord === "Rah").length;
+  const ketuCount = items.filter(i => i.starLord === "Ket").length;
+  let classification;
+  if (rahuCount >= 3) classification = "North";
+  else if (ketuCount >= 3) classification = "West";
+  else classification = "South";
+  return { classification, items, rahuCount, ketuCount };
 }

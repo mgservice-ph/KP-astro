@@ -85,16 +85,8 @@ function computeDashas(moonLong, birthTime, now) {
       const bLordCode = DASHA_SEQUENCE[bSeqIdx];
       const bYears = C.DASHA_YEARS_MAP[bLordCode] || 0;
       const bFraction = bYears / 120;
-      let bDurationMs = mDurationMs * bFraction;
-      if (m === 0) {
-        bDurationMs = (totalYears * 365.25 * 86400000) * bFraction;
-      }
-      let bEndMs = bTimelineMs + bDurationMs;
-      if (m === 0 && bEndMs > mEndMs) {
-        if (bTimelineMs >= mEndMs) break;
-        bEndMs = mEndMs;
-        bDurationMs = bEndMs - bTimelineMs;
-      }
+      const bDurationMs = mDurationMs * bFraction;
+      const bEndMs = bTimelineMs + bDurationMs;
       const isBActive = isMActive && currentMs >= bTimelineMs && currentMs < bEndMs;
 
       const pratyantars = [];
@@ -104,16 +96,8 @@ function computeDashas(moonLong, birthTime, now) {
         const pLordCode = DASHA_SEQUENCE[pSeqIdx];
         const pYears = C.DASHA_YEARS_MAP[pLordCode] || 0;
         const pFraction = pYears / 120;
-        let pDurationMs = bDurationMs * pFraction;
-        if (m === 0) {
-          pDurationMs = (bYears * 365.25 * 86400000) * pFraction;
-        }
-        let pEndMs = pTimelineMs + pDurationMs;
-        if (m === 0 && pEndMs > bEndMs) {
-          if (pTimelineMs >= bEndMs) break;
-          pEndMs = bEndMs;
-          pDurationMs = pEndMs - pTimelineMs;
-        }
+        const pDurationMs = bDurationMs * pFraction;
+        const pEndMs = pTimelineMs + pDurationMs;
         if (pDurationMs <= 0) { pTimelineMs = pEndMs; continue; }
         const isPActive = isBActive && currentMs >= pTimelineMs && currentMs < pEndMs;
         pratyantars.push({

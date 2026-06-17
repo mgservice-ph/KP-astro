@@ -1,19 +1,19 @@
 import { useState, useEffect, useCallback } from "react";
 
 const panelStyle = {
-  background: "var(--card)", border: "1px solid var(--bdr)", borderRadius: "8px",
-  padding: "20px", margin: "16px 0"
+  background: "var(--card)", border: "1px solid var(--bdr)", borderRadius: "6px",
+  padding: "12px", margin: "10px 0"
 };
-const labelStyle = { display: "block", fontSize: "0.8rem", color: "var(--muted)", marginBottom: "4px" };
+const labelStyle = { display: "block", fontSize: "0.7rem", color: "var(--muted)", marginBottom: "2px" };
 const inputStyle = {
-  width: "100%", padding: "8px 10px", borderRadius: "4px", border: "1px solid var(--bdr-strong)",
-  background: "var(--card-sub)", color: "var(--fg)", fontSize: "0.9rem", boxSizing: "border-box"
+  width: "100%", padding: "5px 8px", borderRadius: "3px", border: "1px solid var(--bdr-strong)",
+  background: "var(--card-sub)", color: "var(--fg)", fontSize: "0.8rem", boxSizing: "border-box"
 };
-const rowStyle = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px", marginBottom: "12px" };
+const rowStyle = { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "8px", marginBottom: "8px" };
 const btnStyle = {
-  padding: "10px 24px", borderRadius: "6px", border: "1px solid var(--accent)",
+  padding: "6px 18px", borderRadius: "4px", border: "1px solid var(--accent)",
   background: "var(--accent-light)", color: "var(--accent-strong)",
-  fontWeight: 600, fontSize: "1rem", cursor: "pointer", letterSpacing: "0.3px",
+  fontWeight: 600, fontSize: "0.85rem", cursor: "pointer", letterSpacing: "0.3px",
   fontFamily: "inherit", transition: "all 0.2s"
 };
 const suggestionStyle = {

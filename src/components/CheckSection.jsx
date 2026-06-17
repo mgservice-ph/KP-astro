@@ -65,7 +65,7 @@ export default function CheckSection({ title, data, meterId, tableId, entityIds,
         <table className="data-table">
           <thead>
             <tr>
-              <th>Entity</th><th>Graha</th><th>Rasi</th><th>Bhava</th><th>Nakshatra / Pada</th><th>Status</th><th style={{ width: 28 }}></th>
+              <th>Entity</th><th>Rasi</th><th>Bhava</th><th>Nakshatra / Pada</th><th>Status</th><th style={{ width: 28 }}></th>
             </tr>
           </thead>
           <tbody id={tableId}>
@@ -79,25 +79,25 @@ export default function CheckSection({ title, data, meterId, tableId, entityIds,
               return (
                 <React.Fragment key={idx}>
                   <tr style={{ cursor: "pointer" }}>
-                    <td><b>{e.label}</b></td>
                     <td>
                       <span style={{ color: pColor, fontWeight: 700 }}>{e.planetName}</span>
                       {e.isRetro ? <span className="retro-mark">R</span> : ""}
                       {e.isGrahana ? <span style={{ background: "#8B0000", color: "#fff", fontWeight: 700, fontSize: "0.55rem", padding: "1px 3px", borderRadius: 2, marginLeft: 2 }}>G</span> : ""}
                       {e.isTrikona ? <span style={{ background: "#000", color: "#fff", fontWeight: 700, fontSize: "0.55rem", padding: "1px 3px", borderRadius: 2, marginLeft: 2 }}>GT</span> : ""}
+                      <span style={{ fontSize: "0.65rem", color: "var(--muted)", marginLeft: 4 }}>{e.label}</span>
                     </td>
                     <td>{signName}</td>
-                    <td>{C.ROMAN[e.bhavaIdx - 1] || "--"}</td>
+                    <td>{e.bhavaIdx || "--"}</td>
                     <td>{e.nakName} P{e.pada}</td>
                     <td><span style={{ background: statusColor, color: "#fff", padding: "2px 8px", borderRadius: 3, fontWeight: 700, fontSize: "0.7rem" }}>{statusLabel}</span></td>
                     <td><button className="toggle-btn" onClick={() => toggleRow(idx)} style={{ fontSize: "0.9rem", minHeight: "auto", padding: "2px 6px" }}>{expandedRows[idx] ? "▼" : "▶"}</button></td>
                   </tr>
                   {expandedRows[idx] && (
                     <tr key={"detail-" + idx}>
-                      <td colSpan={7} style={{ padding: 0, border: "none" }}>
+                      <td colSpan={6} style={{ padding: 0, border: "none" }}>
                         <div style={{ padding: "8px 12px", background: "var(--table-hov)", fontSize: "0.72rem" }}>
                           <div style={{ display: "flex", flexWrap: "wrap", gap: "4px 16px" }}>
-                            <span><b>House:</b> {C.ROMAN[e.bhavaIdx - 1]}</span>
+                            <span><b>House:</b> {e.bhavaIdx}</span>
                             <span><b>Star Lord:</b> {e.starLord}</span>
                             <span><b>Sub Lord:</b> {e.subLord}</span>
                             <span><b>D9 Sign:</b> #{e.nakIdx != null ? (e.nakIdx % 12 + 1) : "--"}</span>
