@@ -149,11 +149,12 @@ export default function App() {
     const familyData = computeFamilyCheck(planets, cusps, ascLong);
     const jobData = computeJobCheck(planets, cusps, ascLong);
     const foreignOpp = computeForeignOpportunity(planets, cusps, ascLong);
+    const businessOffice = computeBusinessOfficeCheck(planets, cusps, ascLong);
     const sportData = computeSportCheck(planets, cusps, ascLong);
     const religionData = computeReligionCheck(planets, cusps, ascLong);
     const dnaData = computeDNACheck(planets, cusps, ascLong);
 
-    setComputedData({ ...data, strData, brainData, muteData, purvaData, marriageData, healthData, familyData, jobData, foreignOpp, sportData, religionData, dnaData });
+    setComputedData({ ...data, strData, brainData, muteData, purvaData, marriageData, healthData, familyData, jobData, foreignOpp, businessOffice, sportData, religionData, dnaData });
     setPanchanga(pData);
     } catch (e) { setComputedData(null); setPanchanga(null); }
   }, [config]);
@@ -263,6 +264,7 @@ export default function App() {
   const familyEval = d?.familyData || [];
   const jobEval = d?.jobData || [];
   const foreignOpp = d?.foreignOpp;
+  const businessOffice = d?.businessOffice;
   const sportEval = d?.sportData || [];
   const religionData = d?.religionData;
   const dnaData = d?.dnaData;
@@ -347,6 +349,25 @@ export default function App() {
               </div>
               <div style={{ marginTop: 4, fontWeight: 700, fontSize: "0.85rem", color: foreignOpp.isUbhaya ? "#2E7D32" : "#C62828" }}>
                 {foreignOpp.isUbhaya ? "✓ High opportunity for foreign job" : "✗ No strong indication for foreign job"}
+              </div>
+            </div>
+          )}
+          {businessOffice && (
+            <div style={{ marginTop: 8, padding: "8px 10px", background: businessOffice.isOffice ? "rgba(198,40,40,0.08)" : "rgba(46,125,50,0.08)", borderRadius: 6, border: "1px solid " + (businessOffice.isOffice ? "#C62828" : "#2E7D32") }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, marginBottom: 4, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Business / Office</div>
+              <div style={{ fontSize: "0.8rem" }}>
+                10th Sign: <strong>{businessOffice.tenthSign}</strong> (Ucham: {businessOffice.ucham}, Aatchi: {businessOffice.aatchi})
+              </div>
+              <div style={{ fontSize: "0.8rem" }}>
+                Selected: <strong style={{ color: C.PLANET_COLORS[businessOffice.selectedPlanet] }}>{businessOffice.selectedPlanet}</strong> ({businessOffice.selectedReason}) in <strong>{businessOffice.planetSign}</strong> (H{businessOffice.planetBhava})
+              </div>
+              {businessOffice.conditions.length > 0 && (
+                <div style={{ fontSize: "0.7rem", color: "#C62828", marginTop: 2 }}>
+                  {businessOffice.conditions.map((c, i) => <div key={i}>✗ {c}</div>)}
+                </div>
+              )}
+              <div style={{ marginTop: 4, fontWeight: 700, fontSize: "0.85rem", color: businessOffice.isOffice ? "#C62828" : "#2E7D32" }}>
+                {businessOffice.isOffice ? "✗ Office Work" : "✓ Business Work"}
               </div>
             </div>
           )}
@@ -443,6 +464,25 @@ export default function App() {
               </div>
               <div style={{ marginTop: 4, fontWeight: 700, fontSize: "0.85rem", color: foreignOpp.isUbhaya ? "#2E7D32" : "#C62828" }}>
                 {foreignOpp.isUbhaya ? "✓ High opportunity for foreign job" : "✗ No strong indication for foreign job"}
+              </div>
+            </div>
+          )}
+          {businessOffice && (
+            <div style={{ marginTop: 8, padding: "8px 10px", background: businessOffice.isOffice ? "rgba(198,40,40,0.08)" : "rgba(46,125,50,0.08)", borderRadius: 6, border: "1px solid " + (businessOffice.isOffice ? "#C62828" : "#2E7D32") }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, marginBottom: 4, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Business / Office</div>
+              <div style={{ fontSize: "0.8rem" }}>
+                10th Sign: <strong>{businessOffice.tenthSign}</strong> (Ucham: {businessOffice.ucham}, Aatchi: {businessOffice.aatchi})
+              </div>
+              <div style={{ fontSize: "0.8rem" }}>
+                Selected: <strong style={{ color: C.PLANET_COLORS[businessOffice.selectedPlanet] }}>{businessOffice.selectedPlanet}</strong> ({businessOffice.selectedReason}) in <strong>{businessOffice.planetSign}</strong> (H{businessOffice.planetBhava})
+              </div>
+              {businessOffice.conditions.length > 0 && (
+                <div style={{ fontSize: "0.7rem", color: "#C62828", marginTop: 2 }}>
+                  {businessOffice.conditions.map((c, i) => <div key={i}>✗ {c}</div>)}
+                </div>
+              )}
+              <div style={{ marginTop: 4, fontWeight: 700, fontSize: "0.85rem", color: businessOffice.isOffice ? "#C62828" : "#2E7D32" }}>
+                {businessOffice.isOffice ? "✗ Office Work" : "✓ Business Work"}
               </div>
             </div>
           )}
@@ -856,6 +896,56 @@ function computeForeignOpportunity(planets, cusps, ascLong) {
   };
 }
 
+function computeBusinessOfficeCheck(planets, cusps, ascLong) {
+  const aSI = Math.floor(ascLong / 30);
+  const tenthSign = (aSI + 9) % 12;
+  const dign = C.SIGN_DIGNITY[tenthSign];
+
+  const selectedCode = dign.ucham || dign.aatshi[0];
+  const selectedName = C.STAR_TO_PLANET[selectedCode];
+  const selectedReason = dign.ucham ? "Ucham" : "Aatchi";
+
+  const planet = planets.find(p => p.name === selectedName);
+  if (!planet) return null;
+
+  const tenthSignName = C.ZODIAC_NAMES[tenthSign].n;
+  const planetSignIdx = planet.signIndex;
+  const planetSignName = C.ZODIAC_NAMES[planetSignIdx].n;
+  const bhava = getBhavaIndex(planet.absoluteLong, cusps);
+
+  const pLord = C.PLANET_TO_LORD_MAP[planet.name];
+  const sD = C.SIGN_DIGNITY[planetSignIdx];
+  const isNeecham = sD.neecham === pLord;
+  const isCombust = planet.isCombust || false;
+
+  const sixthFrom10th = (tenthSign + 5) % 12;
+  const eighthFrom10th = (tenthSign + 7) % 12;
+  const in6thOr8thSign = planetSignIdx === sixthFrom10th || planetSignIdx === eighthFrom10th;
+
+  const inBadBhava = bhava === 6 || bhava === 8 || bhava === 12;
+
+  const conditions = [];
+  if (in6thOr8thSign) conditions.push(`Sign ${planetSignName} = ${planetSignIdx === sixthFrom10th ? "6th" : "8th"} from ${tenthSignName}`);
+  if (isNeecham) conditions.push("Neecham");
+  if (isCombust) conditions.push("Combust");
+  if (inBadBhava) conditions.push(`Bhava ${bhava} from asc`);
+
+  const isOffice = conditions.length > 0;
+
+  return {
+    tenthSign: tenthSignName,
+    ucham: C.STAR_TO_PLANET[dign.ucham] || "—",
+    aatchi: C.STAR_TO_PLANET[dign.aatshi[0]] || "—",
+    selectedPlanet: selectedName,
+    selectedReason,
+    planetSign: planetSignName,
+    planetBhava: bhava,
+    conditions,
+    isOffice,
+    label: isOffice ? "OFFICE WORK" : "BUSINESS WORK"
+  };
+}
+
 function computeSportCheck(planets, cusps, ascLong) {
   const aSI = Math.floor(ascLong / 30);
   const l3C = C.LORDS_ORDER[C.RASI_DOMINIONS[(aSI + 2) % 12]];
@@ -938,6 +1028,11 @@ function computeDNACheck(planets, cusps, ascLong) {
     moonStarNakName = mNak.nak.n;
   }
 
+  const ascPlanetKarma = {
+    Sun: "Surya", Moon: "Moon", Mars: "Mars", Mercury: "Budha",
+    Jupiter: "Guru", Venus: "Venus", Saturn: "Sani", Rahu: "Rahu", Ketu: "Surya"
+  };
+
   const counts = {};
   Object.keys(C.DNA_KARMA_COLORS).forEach(k => counts[k] = 0);
 
@@ -950,31 +1045,38 @@ function computeDNACheck(planets, cusps, ascLong) {
   });
   counts[ascNakKarma]++;
 
-  if (signLordKarma) {
-    entities.push({
-      label: "Sign Lord Star",
-      detail: signLordName + " → " + signLordNakName,
-      karmas: [signLordKarma]
-    });
-    counts[signLordKarma]++;
-  }
+  entities.push({
+    label: "Sign Lord Star",
+    detail: signLordKarma ? signLordName + " → " + signLordNakName : "—",
+    karmas: signLordKarma ? [signLordKarma] : []
+  });
+  if (signLordKarma) counts[signLordKarma]++;
 
-  if (rasiKarmas.length > 0) {
-    entities.push({
-      label: "Ascendant Rasi",
-      detail: C.ZODIAC_NAMES[aSI].n,
-      karmas: rasiKarmas
-    });
-    rasiKarmas.forEach(k => counts[k]++);
-  }
+  entities.push({
+    label: "Ascendant Rasi",
+    detail: C.ZODIAC_NAMES[aSI].n,
+    karmas: rasiKarmas
+  });
+  rasiKarmas.forEach(k => counts[k]++);
 
-  if (moonStarKarma) {
-    entities.push({
-      label: "Moon Star",
-      detail: moonStarNakName,
-      karmas: [moonStarKarma]
+  entities.push({
+    label: "Moon Star",
+    detail: moonStarKarma ? moonStarNakName : "—",
+    karmas: moonStarKarma ? [moonStarKarma] : []
+  });
+  if (moonStarKarma) counts[moonStarKarma]++;
+
+  const planetsInAsc = planets.filter(p => p.id !== "mandi" && Math.floor(p.absoluteLong / 30) === aSI);
+  if (planetsInAsc.length > 0) {
+    planetsInAsc.forEach(p => {
+      const k = ascPlanetKarma[p.name];
+      if (k) {
+        entities.push({ label: "Planet in Asc", detail: p.name, karmas: [k] });
+        counts[k]++;
+      }
     });
-    counts[moonStarKarma]++;
+  } else {
+    entities.push({ label: "Planet in Asc", detail: "—", karmas: [] });
   }
 
   let maxCount = 0, dominant = null, tie = false;
