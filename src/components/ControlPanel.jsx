@@ -67,25 +67,25 @@ export default function ControlPanel({ config, onConfigChange, onCompute }) {
     <div style={panelStyle}>
       <div style={rowStyle}>
         <div>
-          <label style={labelStyle}>Subject Profile Name</label>
-          <input style={inputStyle} type="text" value={config?.name || ""}
+          <label style={labelStyle} htmlFor="subjectName">Subject Profile Name</label>
+          <input id="subjectName" style={inputStyle} type="text" value={config?.name || ""}
             onChange={e => update("name", e.target.value)} placeholder="Enter name" />
         </div>
         <div>
-          <label style={labelStyle}>Date of Birth</label>
-          <input style={inputStyle} type="date" value={config?.dob || ""}
+          <label style={labelStyle} htmlFor="dob">Date of Birth</label>
+          <input id="dob" style={inputStyle} type="date" value={config?.dob || ""}
             onChange={e => update("dob", e.target.value)} />
         </div>
         <div>
-          <label style={labelStyle}>Time of Birth</label>
-          <input style={inputStyle} type="time" value={config?.tob || ""}
+          <label style={labelStyle} htmlFor="tob">Time of Birth</label>
+          <input id="tob" style={inputStyle} type="time" value={config?.tob || ""}
             onChange={e => update("tob", e.target.value)} />
         </div>
       </div>
       <div style={rowStyle}>
         <div style={{ position: "relative" }}>
-          <label style={labelStyle}>Location</label>
-          <input style={inputStyle} type="text" value={config?.location || ""}
+          <label style={labelStyle} htmlFor="location">Location</label>
+          <input id="location" style={inputStyle} type="text" value={config?.location || ""}
             onChange={e => update("location", e.target.value)} placeholder="City, Country" />
           {showSug && suggestions.length > 0 && (
             <div style={suggestionStyle}>
@@ -100,20 +100,20 @@ export default function ControlPanel({ config, onConfigChange, onCompute }) {
           )}
         </div>
         <div>
-          <label style={labelStyle}>Latitude</label>
-          <input style={inputStyle} type="number" step="any" value={config?.latitude ?? ""}
+          <label style={labelStyle} htmlFor="latitude">Latitude</label>
+          <input id="latitude" style={inputStyle} type="number" step="any" value={config?.latitude ?? ""}
             onChange={e => update("latitude", parseFloat(e.target.value) || 0)} />
         </div>
         <div>
-          <label style={labelStyle}>Longitude</label>
-          <input style={inputStyle} type="number" step="any" value={config?.longitude ?? ""}
+          <label style={labelStyle} htmlFor="longitude">Longitude</label>
+          <input id="longitude" style={inputStyle} type="number" step="any" value={config?.longitude ?? ""}
             onChange={e => update("longitude", parseFloat(e.target.value) || 0)} />
         </div>
       </div>
       <div style={{ ...rowStyle, alignItems: "end" }}>
         <div>
-          <label style={labelStyle}>Ayanamsa Mode</label>
-          <select style={inputStyle} value={config?.ayanamsa || "kp"}
+          <label style={labelStyle} htmlFor="ayanamsa">Ayanamsa Mode</label>
+          <select id="ayanamsa" style={inputStyle} value={config?.ayanamsa || "kp"}
             onChange={e => update("ayanamsa", e.target.value)}>
             <option value="kp">KP</option>
             <option value="lahiri">Lahiri</option>

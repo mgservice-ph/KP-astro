@@ -39,7 +39,7 @@ export default function ChangePassword({ onClose }) {
             { v: confirmPwd, s: setConfirmPwd }
           ][i];
           return (
-            <input key={i} type="password" value={props.v} onChange={e => props.s(e.target.value)}
+            <input key={i} id={["oldPassword", "newPassword", "confirmPassword"][i]} type="password" value={props.v} onChange={e => props.s(e.target.value)}
               placeholder={ph} autoFocus={i === 0}
               style={{
                 width: "100%", padding: "8px 0", border: "none", borderBottom: "1px solid #333",

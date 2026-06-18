@@ -29,7 +29,7 @@ export default function LoginScreen({ onLogin }) {
       }}>
         <div style={{ fontSize: "1.5rem", fontWeight: 400, color: "#e0e0d8", fontFamily: "'Playfair Display', Georgia, serif", marginBottom: 2 }}>KP Astro</div>
         <div style={{ fontSize: "0.6rem", color: "#666", marginBottom: 32, textTransform: "uppercase", letterSpacing: "2.5px", fontWeight: 400 }}>Admin</div>
-        <input type="password" value={pwd} onChange={e => setPwd(e.target.value)}
+        <input id="adminPassword" type="password" value={pwd} onChange={e => setPwd(e.target.value)}
           placeholder="Password" autoFocus
           style={{
             width: "100%", padding: "10px 0", border: "none", borderBottom: "1px solid #333",
