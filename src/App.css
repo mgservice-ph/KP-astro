@@ -664,7 +664,126 @@ body {
 
 .footer { text-align: center; padding: 24px 0; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--bdr); margin-top: 32px; line-height: 1.5; }
 
-/* Small Phone ( < 480px ) */
+.admin-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 0.65rem;
+}
+.admin-actions button {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.65rem;
+  font-family: inherit;
+  padding: 2px 4px;
+}
+.admin-actions button:hover { color: var(--fg); }
+.admin-actions span { color: var(--bdr-strong); }
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.filter-bar .filter-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-right: 4px;
+  white-space: nowrap;
+}
+.filter-bar .filter-btn {
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  text-transform: capitalize;
+  transition: background 0.2s, color 0.2s;
+  background: var(--card-sub);
+  color: var(--accent);
+  border: 1px solid var(--bdr-strong);
+  font-family: inherit;
+  line-height: 1.4;
+}
+.filter-bar .filter-btn:hover { opacity: 0.85; }
+.filter-bar .filter-btn.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+
+@media (max-width: 479px) {
+  .admin-actions { justify-content: center; font-size: 0.6rem; }
+  .admin-actions button { font-size: 0.6rem; }
+  .filter-bar .filter-btn { font-size: 0.65rem; padding: 3px 7px; }
+}
+
+/* ─────────────── SMALL PHONE (< 480px) ─────────────── */
+@media (max-width: 479px) {
+  body { padding: 8px; font-size: 13px; }
+  .header { flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 14px; margin-bottom: 16px; }
+  .header-title h1 { font-size: 1.4rem; }
+  .header-title p { font-size: 0.75rem; }
+  .header-ctrls { width: 100%; }
+  .header-ctrls select, .header-ctrls button { flex: 1 1 100%; min-width: unset; }
+  .container { padding: 0; }
+  .control-panel { padding: 10px; gap: 8px; }
+  .control-panel label { font-size: 0.65rem; }
+  .control-panel input, .control-panel select { min-height: 38px; font-size: 0.8rem; }
+  .control-panel .btn-compute { min-height: 38px; font-size: 0.85rem; }
+  .meta-bar { font-size: 0.75rem; padding: 8px; margin-bottom: 14px; }
+  .live-tracker-panel { padding: 10px; }
+  .live-tracker-string { font-size: 0.95rem; }
+  .studio-card { padding: 8px; }
+  .studio-card h3 { font-size: 0.95rem; margin-bottom: 10px; }
+  .chart-grid-row { gap: 14px; }
+  .south-indian-grid { max-width: 100%; }
+  .d1-extrusion { max-width: 100%; }
+  .d1-extrusion .extrusion-left,
+  .d1-extrusion .extrusion-right { width: 28px; font-size: 0.4rem; }
+  .d1-extrusion .extrusion-bar-row .extrusion-spacer { min-width: 28px; }
+  .d1-extrusion .extrusion-bar-row .extrusion-top,
+  .d1-extrusion .extrusion-bar-row .extrusion-bottom { font-size: 0.4rem; }
+  .d1-extrusion .extrusion-left .ext-cell,
+  .d1-extrusion .extrusion-right .ext-cell { gap: 1px; }
+  .d1-extrusion .extrusion-mid { flex-direction: column; }
+  .panchanga-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .panchanga-item { min-height: 60px; padding: 8px 10px; }
+  .panchanga-value { font-size: 0.9rem; }
+  .rp-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .rp-item { padding: 8px; }
+  .rp-value { font-size: 0.85rem; }
+  .cusp-flex { grid-template-columns: 1fr 1fr; gap: 6px; }
+  .cusp-card { padding: 8px; }
+  .cusp-card h4 { font-size: 0.7rem; }
+  .cusp-card p { font-size: 0.65rem; }
+  .data-table { font-size: 0.55rem; }
+  .data-table th, .data-table td { padding: 4px 5px; }
+  .table-responsive { margin-top: 2px; }
+  .dasha-trigger { min-height: 38px; padding: 8px 10px; font-size: 0.8rem; }
+  .dasha-trigger, .bhukti-trigger { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .bhukti-trigger { font-size: 0.75rem; padding: 6px 8px; }
+  .pratyantar-item { font-size: 0.7rem; padding: 5px 8px; flex-direction: column; align-items: flex-start; gap: 4px; }
+  .pratyantar-grid { grid-template-columns: 1fr; }
+  .footer { font-size: 0.75rem; padding: 16px 0; margin-top: 20px; }
+  .cell { padding: 4px; }
+  .cell-sign { font-size: 0.55rem; }
+  .cell-header { margin-bottom: 2px; }
+  .cell-planets { gap: 1px; }
+  .planet-tag { font-size: 0.55rem; padding: 2px 3px; flex-direction: column; align-items: flex-start; }
+  .planet-tag .deg { font-size: 0.5rem; }
+  .planet-tag .kp-lords { font-size: 0.45rem; }
+  .toggle-btn { min-height: 32px; font-size: 0.9rem; }
+  .rp-info { font-size: 0.7rem; flex-direction: column; gap: 4px; }
+  .rp-info span { white-space: normal; }
+  .kp-cusp-badge { font-size: 0.55rem; padding: 1px 3px; }
+  .chart-grid-row .studio-card { padding: 6px; }
+}
+
 /* Desktop and Tablet Adaptations */
 @media (min-width: 480px) {
   .control-panel { grid-template-columns: repeat(2, 1fr); }
@@ -688,6 +807,16 @@ body {
 @media (min-width: 600px) {
   .workspace-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
   #chartsContainer.workspace-grid { grid-template-columns: 1fr 1fr; }
+}
+
+/* Extrusion bar responsive: hide on tiny phones, thinner on tablets */
+@media (max-width: 479px) {
+  .chart-extrusion-wrap { display: none !important; }
+}
+@media (min-width: 480px) and (max-width: 767px) {
+  .chart-extrusion-side { width: 32px !important; font-size: 0.45rem; }
+  .chart-extrusion-top-btm { font-size: 0.45rem; }
+  .chart-extrusion-spacer { min-width: 32px !important; }
 }
 
 @media (min-width: 600px) and (max-width: 767px) {
