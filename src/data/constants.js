@@ -110,3 +110,29 @@ export const DAYTIME_SATURN_PART = [7, 6, 5, 4, 3, 2, 1];
 export const NIGHTTIME_SATURN_PART = [3, 2, 1, 7, 6, 5, 4];
 export const DAYTIME_EIGHTH_PART = [8, 8, 8, 8, 8, 8, 8];
 export const NIGHTTIME_EIGHTH_PART = [8, 8, 8, 8, 8, 8, 8];
+
+export const DNA_NAK_KARMA = [
+  "Surya", "Moon", "Mars", "Budha", "Guru", "Venus", "Sani", "Rahu",
+  "Surya", "Moon", "Mars", "Budha", "Guru", "Venus", "Sani", "Rahu",
+  "Surya", "Moon", "Mars", "Budha", "Guru", "Venus", "Sani", "Rahu",
+  "Surya", "Moon", "Mars"
+];
+
+export const DNA_RASI_KARMA = [
+  ["Guru"], ["Guru"], [], [], ["Guru"], ["Sani", "Moon"], ["Moon"], [],
+  ["Rahu"], [], ["Mars"], ["Surya"]
+];
+
+export const DNA_KARMA_COLORS = {
+  Surya: "#FF6B00", Moon: "#999999", Mars: "#FF3333",
+  Rahu: "#9933FF", Guru: "#E5A600", Sani: "#6666CC",
+  Budha: "#33CC33", Venus: "#C93A6B"
+};
+
+export const DEFAULT_ADMIN_PASSWORD_HASH = "0146a0850c0166ba7717e5b4de366e2e520b429b7140e9b58703d62ae0474d6d";
+
+export const DNA_KARMA_LABELS = {
+  Surya: "Surya", Moon: "Moon", Mars: "Mars",
+  Rahu: "Rahu", Guru: "Guru", Sani: "Sani",
+  Budha: "Budha", Venus: "Venus"
+};

@@ -62,58 +62,71 @@ function computeDashas(moonLong, birthTime, now) {
   const nakStart = C.NAKSHATRAS[st.index].s;
   const elapsed = ((moonLong - nakStart + 360) % 360);
   const totalSpan = 13.3333;
-  const remainingFactor = (totalSpan - elapsed) / totalSpan;
+  const elapsedFraction = elapsed / totalSpan;
   const lordIndex = DASHA_SEQUENCE.indexOf(C.NAKSHATRAS[st.index].l);
+
+  // Determine which Bhukti sub-portion the Moon occupies at birth
+  // Sub-portions 0..k-1 elapsed before birth, sub-portion k is current (partially elapsed)
+  let bhuktiOffset = 0;
+  let bhuktiElapsed = 0;
+  let cum = 0;
+  for (let i = 0; i < 9; i++) {
+    const idx = (lordIndex + i) % 9;
+    const yr = C.DASHA_YEARS_MAP[DASHA_SEQUENCE[idx]] || 0;
+    const portion = yr / 120;
+    if (elapsedFraction < cum + portion) { bhuktiOffset = i; bhuktiElapsed = elapsedFraction - cum; break; }
+    cum += portion;
+  }
+
   const baseMs = new Date(birthTime).getTime();
   const currentMs = now.getTime();
   const dashes = [];
+  const YEAR_MS = 365.25 * 86400000;
 
   let mTimelineMs = baseMs;
   for (let m = 0; m < 9; m++) {
     const seqIdx = (lordIndex + m) % 9;
     const lordCode = DASHA_SEQUENCE[seqIdx];
     const totalYears = C.DASHA_YEARS_MAP[lordCode] || 0;
-    let mDurationMs = totalYears * 365.25 * 86400000;
-    if (m === 0) mDurationMs *= remainingFactor;
+    let mDurationMs = totalYears * YEAR_MS;
+    if (m === 0) mDurationMs *= (1 - elapsedFraction);
     const mEndMs = mTimelineMs + mDurationMs;
     const isMActive = currentMs >= mTimelineMs && currentMs < mEndMs;
 
     const bhuktis = [];
     let bTimelineMs = mTimelineMs;
-    for (let b = 0; b < 9; b++) {
-      const bSeqIdx = (seqIdx + b) % 9;
-      const bLordCode = DASHA_SEQUENCE[bSeqIdx];
-      const bYears = C.DASHA_YEARS_MAP[bLordCode] || 0;
-      const bFraction = bYears / 120;
-      const bDurationMs = mDurationMs * bFraction;
-      const bEndMs = bTimelineMs + bDurationMs;
-      const isBActive = isMActive && currentMs >= bTimelineMs && currentMs < bEndMs;
 
-      const pratyantars = [];
-      let pTimelineMs = bTimelineMs;
-      for (let p = 0; p < 9; p++) {
-        const pSeqIdx = (bSeqIdx + p) % 9;
-        const pLordCode = DASHA_SEQUENCE[pSeqIdx];
-        const pYears = C.DASHA_YEARS_MAP[pLordCode] || 0;
-        const pFraction = pYears / 120;
-        const pDurationMs = bDurationMs * pFraction;
-        const pEndMs = pTimelineMs + pDurationMs;
-        if (pDurationMs <= 0) { pTimelineMs = pEndMs; continue; }
-        const isPActive = isBActive && currentMs >= pTimelineMs && currentMs < pEndMs;
-        pratyantars.push({
-          lord: pLordCode,
-          start: new Date(pTimelineMs), end: new Date(pEndMs),
-          isActive: isPActive
-        });
-        pTimelineMs = pEndMs;
+    if (m === 0) {
+      // First MD: start from sub-portion planet, skip elapsed Bhuktis
+      const bLordStart = (lordIndex + bhuktiOffset) % 9;
+      const bCount = 9 - bhuktiOffset;
+      for (let b = 0; b < bCount; b++) {
+        const bIdx = (bLordStart + b) % 9;
+        const bLord = DASHA_SEQUENCE[bIdx];
+        const bYrs = C.DASHA_YEARS_MAP[bLord] || 0;
+        const bFrac = bYrs / 120;
+        const bDurationMs = totalYears * YEAR_MS * (b === 0 ? bFrac - bhuktiElapsed : bFrac);
+        const bEndMs = bTimelineMs + bDurationMs;
+        const isBActive = isMActive && currentMs >= bTimelineMs && currentMs < bEndMs;
+        const pratyantars = buildPratyantars(bIdx, bDurationMs, bTimelineMs, currentMs, isBActive);
+        bhuktis.push({ lord: bLord, start: new Date(bTimelineMs), end: new Date(bEndMs), isActive: isBActive, children: pratyantars });
+        bTimelineMs = bEndMs;
       }
-      bhuktis.push({
-        lord: bLordCode,
-        start: new Date(bTimelineMs), end: new Date(bEndMs),
-        isActive: isBActive, children: pratyantars
-      });
-      bTimelineMs = bEndMs;
+    } else {
+      // Subsequent MDs: all 9 Bhuktis starting from MD lord
+      for (let b = 0; b < 9; b++) {
+        const bIdx = (seqIdx + b) % 9;
+        const bLord = DASHA_SEQUENCE[bIdx];
+        const bYrs = C.DASHA_YEARS_MAP[bLord] || 0;
+        const bDurationMs = totalYears * YEAR_MS * bYrs / 120;
+        const bEndMs = bTimelineMs + bDurationMs;
+        const isBActive = isMActive && currentMs >= bTimelineMs && currentMs < bEndMs;
+        const pratyantars = buildPratyantars(bIdx, bDurationMs, bTimelineMs, currentMs, isBActive);
+        bhuktis.push({ lord: bLord, start: new Date(bTimelineMs), end: new Date(bEndMs), isActive: isBActive, children: pratyantars });
+        bTimelineMs = bEndMs;
+      }
     }
+
     dashes.push({
       lord: lordCode,
       start: new Date(mTimelineMs), end: new Date(mEndMs),
@@ -122,6 +135,23 @@ function computeDashas(moonLong, birthTime, now) {
     mTimelineMs = mEndMs;
   }
   return dashes;
+}
+
+function buildPratyantars(bIdx, bDurationMs, bTimelineMs, currentMs, isBActive) {
+  const pratyantars = [];
+  let pTimelineMs = bTimelineMs;
+  for (let p = 0; p < 9; p++) {
+    const pIdx = (bIdx + p) % 9;
+    const pLord = DASHA_SEQUENCE[pIdx];
+    const pYrs = C.DASHA_YEARS_MAP[pLord] || 0;
+    const pDurationMs = bDurationMs * pYrs / 120;
+    const pEndMs = pTimelineMs + pDurationMs;
+    if (pDurationMs <= 0) { pTimelineMs = pEndMs; continue; }
+    const isPActive = isBActive && currentMs >= pTimelineMs && currentMs < pEndMs;
+    pratyantars.push({ lord: pLord, start: new Date(pTimelineMs), end: new Date(pEndMs), isActive: isPActive });
+    pTimelineMs = pEndMs;
+  }
+  return pratyantars;
 }
 
 function getStellarDataSimple(longitude) {
