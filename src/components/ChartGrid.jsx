@@ -76,7 +76,7 @@ function ExtrusionPlanet({ p }) {
 function TransitExtrusionBar({ planets, signIndices, isLeftRight }) {
   if (isLeftRight) {
     return (
-      <div className="chart-extrusion-wrap chart-extrusion-side" style={{ display: "grid", gridTemplateRows: "repeat(4, 1fr)", gap: "1px", width: "48px", flexShrink: 0, alignItems: "center" }}>
+      <div style={{ display: "grid", gridTemplateRows: "repeat(4, 1fr)", gap: "1px", width: "48px", flexShrink: 0, alignItems: "center" }}>
         {signIndices.map((si, i) => (
           <div key={i} style={extCell}>
             {si != null && planets ? planets.filter(p => p.signIndex === si).map((p, j) => <ExtrusionPlanet key={j} p={p} />) : null}
@@ -86,7 +86,7 @@ function TransitExtrusionBar({ planets, signIndices, isLeftRight }) {
     );
   }
   return (
-    <div className="chart-extrusion-wrap chart-extrusion-top-btm" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1px", flex: 1, border: "2px solid transparent", borderRadius: "8px" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1px", flex: 1, border: "2px solid transparent", borderRadius: "8px" }}>
       {signIndices.map((si, i) => (
         <div key={i} style={extCell}>
           {planets ? planets.filter(p => p.signIndex === si).map((p, j) => <ExtrusionPlanet key={j} p={p} />) : null}
@@ -240,9 +240,9 @@ export default function ChartGrid({ planets, cusps, ascendantAbsoluteLong, panch
         <h3 style={{ textAlign: "center", justifyContent: "center" }}>RasiChart D1</h3>
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "2px", width: "100%", alignItems: "center", justifyContent: "center" }}>
           <div style={{ display: "flex", gap: "2px", width: "100%", maxWidth: "550px" }}>
-            <div className="chart-extrusion-wrap chart-extrusion-spacer" style={{ width: "48px", flexShrink: 0 }} />
+            <div style={{ width: "48px", flexShrink: 0 }} />
             {extTop}
-            <div className="chart-extrusion-wrap chart-extrusion-spacer" style={{ width: "48px", flexShrink: 0 }} />
+            <div style={{ width: "48px", flexShrink: 0 }} />
           </div>
           <div style={{ display: "flex", gap: "2px", width: "100%", maxWidth: "550px" }}>
             {extLeft}
@@ -250,9 +250,9 @@ export default function ChartGrid({ planets, cusps, ascendantAbsoluteLong, panch
             {extRight}
           </div>
           <div style={{ display: "flex", gap: "2px", width: "100%", maxWidth: "550px" }}>
-            <div className="chart-extrusion-wrap chart-extrusion-spacer" style={{ width: "48px", flexShrink: 0 }} />
+            <div style={{ width: "48px", flexShrink: 0 }} />
             {extBtm}
-            <div className="chart-extrusion-wrap chart-extrusion-spacer" style={{ width: "48px", flexShrink: 0 }} />
+            <div style={{ width: "48px", flexShrink: 0 }} />
           </div>
         </div>
       </div>

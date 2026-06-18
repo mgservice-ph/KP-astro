@@ -287,10 +287,10 @@ export default function App() {
         </div>
       </div>
 
-      <div className="admin-actions">
-        <button onClick={() => setShowChangePwd(true)}>Change Password</button>
-        <span>|</span>
-        <button onClick={() => { sessionStorage.removeItem("adminLoggedIn"); setIsLoggedIn(false); }}>Logout</button>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginBottom: 12, fontSize: "0.65rem" }}>
+        <button onClick={() => setShowChangePwd(true)} style={{ background: "none", border: "none", color: "var(--muted)", cursor: "pointer", fontSize: "0.65rem", fontFamily: "inherit" }}>Change Password</button>
+        <span style={{ color: "var(--bdr-strong)" }}>|</span>
+        <button onClick={() => { sessionStorage.removeItem("adminLoggedIn"); setIsLoggedIn(false); }} style={{ background: "none", border: "none", color: "var(--muted)", cursor: "pointer", fontSize: "0.65rem", fontFamily: "inherit" }}>Logout</button>
       </div>
 
       <div className="workspace-grid">
@@ -300,10 +300,16 @@ export default function App() {
 
       <LiveTracker activeDasha={activeDasha} visible={!!activeDasha.mahadasha} />
 
-      <div className="filter-bar">
-        <span className="filter-label">Check:</span>
+      <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap", marginBottom: 10 }}>
+        <span style={{ fontSize: "0.75rem", color: "var(--muted)", marginRight: 4 }}>Check:</span>
         {["all","strength","brain","mute","purvapuniya","marriage","health","family","job","sport","religion","dna"].map(v => (
-          <button key={v} className={"filter-btn" + (checkFilter === v ? " active" : "")} onClick={() => setCheckFilter(v)}>
+          <button key={v} style={{
+            padding: "4px 10px", borderRadius: "4px", cursor: "pointer", fontSize: "0.75rem",
+            textTransform: "capitalize", transition: "background 0.2s",
+            background: checkFilter === v ? "var(--accent)" : "var(--card-sub)",
+            color: checkFilter === v ? "#fff" : "var(--accent)",
+            border: checkFilter === v ? "1px solid var(--accent)" : "1px solid var(--bdr-strong)"
+          }} onClick={() => setCheckFilter(v)}>
             {v === "all" ? "All" : v}
           </button>
         ))}
