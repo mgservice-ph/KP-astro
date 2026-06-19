@@ -143,7 +143,7 @@ function D1Grid({ planets, cusps, ascendantAbsoluteLong, panchanga, birthTime })
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "2px", alignContent: "flex-end", marginTop: "auto" }}>
             {cellPlanets.map((p, i) => <PlanetTag key={i} p={p} layoutType="rasi" panchanga={panchanga} />)}
-            {isAsc && age >= 0 && (ascSignIdx + age) % 12 === signIdx ? (
+            {age >= 0 && (ascSignIdx + age) % 12 === signIdx ? (
               <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#2E7D32", display: "inline-block", padding: "2px 4px" }}>{age} Age</span>
             ) : null}
           </div>
