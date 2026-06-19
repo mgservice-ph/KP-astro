@@ -8,16 +8,16 @@ const valueStyle = { fontSize: "0.85rem", fontWeight: 600, marginTop: "2px" };
 
 import * as C from "../data/constants";
 
-const RP_COLORS = ["#FF5722","#2196F3","#4CAF50","#FF9800","#9C27B0","#E91E63","#00BCD4"];
+const RP_COLORS = ["#FF5722","#2196F3","#4CAF50","#9C27B0","#00BCD4"];
 
 const RP_LABELS = [
-  "Day Lord", "Lagna Sign Lord", "Lagna Star Lord", "Lagna Sub Lord",
-  "Moon Star Lord", "Moon Sub Lord", "Moon Sign Lord"
+  "Day Lord", "Lagna Sign Lord", "Lagna Star Lord",
+  "Moon Star Lord", "Moon Sign Lord"
 ];
 
 export default function RulingPlanets({ data }) {
   if (!data) return null;
-  const rpKeys = ["rp0", "rp1", "rp2", "rp3", "rp4", "rp5", "rp6"];
+  const rpKeys = ["rp0", "rp1", "rp2", "rp4", "rp6"];
 
   return (
     <div style={cardStyle}>

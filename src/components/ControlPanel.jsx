@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 
 const panelStyle = {
   background: "var(--card)", border: "1px solid var(--bdr)", borderRadius: "6px",
@@ -29,6 +29,12 @@ const suggestionItemStyle = {
 export default function ControlPanel({ config, onConfigChange, onCompute }) {
   const [suggestions, setSuggestions] = useState([]);
   const [showSug, setShowSug] = useState(false);
+  const [locDraft, setLocDraft] = useState(config?.location || "");
+  const picking = useRef(false);
+
+  useEffect(() => {
+    setLocDraft(config?.location || "");
+  }, [config?.location]);
 
   const update = useCallback((key, value) => {
     onConfigChange && onConfigChange(prev => ({ ...prev, [key]: value }));
@@ -39,12 +45,11 @@ export default function ControlPanel({ config, onConfigChange, onCompute }) {
   }, [onConfigChange]);
 
   useEffect(() => {
-    const loc = config?.location || "";
-    if (loc.length < 3) { setSuggestions([]); setShowSug(false); return; }
+    if (locDraft.length < 3) { setSuggestions([]); setShowSug(false); return; }
     const timer = setTimeout(async () => {
       try {
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(loc)}`
+          `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(locDraft)}`
         );
         const data = await res.json();
         setSuggestions(data.map(d => ({ display: d.display_name, lat: d.lat, lon: d.lon })));
@@ -52,9 +57,11 @@ export default function ControlPanel({ config, onConfigChange, onCompute }) {
       } catch { setSuggestions([]); }
     }, 500);
     return () => clearTimeout(timer);
-  }, [config?.location]);
+  }, [locDraft]);
 
   const pickSuggestion = (s) => {
+    picking.current = true;
+    setLocDraft(s.display);
     updateMulti({
       location: s.display,
       latitude: parseFloat(s.lat),
@@ -85,13 +92,15 @@ export default function ControlPanel({ config, onConfigChange, onCompute }) {
       <div style={rowStyle}>
         <div style={{ position: "relative" }}>
           <label style={labelStyle} htmlFor="location">Location</label>
-          <input id="location" style={inputStyle} type="text" value={config?.location || ""}
-            onChange={e => update("location", e.target.value)} placeholder="City, Country" />
+          <input id="location" style={inputStyle} type="text" value={locDraft}
+            onChange={e => setLocDraft(e.target.value)}
+            onBlur={() => { if (!picking.current) { update("location", locDraft); } }}
+            onFocus={() => picking.current = false} placeholder="City, Country" />
           {showSug && suggestions.length > 0 && (
             <div style={suggestionStyle}>
               {suggestions.map((s, i) => (
                 <div key={i} style={suggestionItemStyle}
-                  onClick={() => pickSuggestion(s)}
+                  onMouseDown={e => { e.preventDefault(); pickSuggestion(s); }}
                   onMouseEnter={e => e.currentTarget.style.background = "#333"}
                   onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                 >{s.display}</div>

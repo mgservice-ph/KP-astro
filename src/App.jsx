@@ -37,6 +37,7 @@ export default function App() {
   const [computedData, setComputedData] = useState(null);
   const [panchanga, setPanchanga] = useState(null);
   const [rpData, setRpData] = useState(null);
+  const [transitPanchanga, setTransitPanchanga] = useState(null);
   const [activeDasha, setActiveDasha] = useState({ mahadasha: "", bhukti: "", pratyantar: "" });
   const [transitPlanets, setTransitPlanets] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!sessionStorage.getItem("adminLoggedIn"));
@@ -220,10 +221,15 @@ export default function App() {
     setRpData({
       timestamp: istDate.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", hour12: true }),
       lagna: `${C.ZODIAC_NAMES[aSI].s} ${C.ZODIAC_NAMES[aSI].n} (${formatArcMinutes(asc.absoluteLong % 30)})`,
-      rp0: dL, rp1: aSL, rp2: aSt.starLord, rp3: aSt.subLord,
-      rp4: mSt.starLord, rp5: mSt.subLord, rp6: mSL,
+      rp0: dL, rp1: aSL, rp2: aSt.starLord, rp4: mSt.starLord, rp6: mSL,
     });
     setTransitPlanets(tp);
+    const tSun = tp.find(p => p.id === "sun");
+    if (tSun) {
+      const tth = computeThithi(tSun.absoluteLong, moon.absoluteLong);
+      const tso = computeThithiSoonya(tth.index);
+      setTransitPanchanga({ soonyaSigns: tso.signs, soonyaGrahas: tso.grahas });
+    }
   }, [computeTransitPlanets, config.latitude, config.longitude, config.ayanamsa, config.mandiMode]);
 
   useEffect(() => {
@@ -318,100 +324,126 @@ export default function App() {
       </div>
 
       {checkFilter === "all" ? (<>
-        <div className="studio-card" style={{ marginBottom: 16 }}>
+        <div className="studio-card" style={{ marginBottom: 4 }}>
           <CheckSection title="Strength Rasi Lagna check" data={strEval} meterId="strength" tableId="strengthTableBody" entityIds={["strLagnaLord","strLagnaStar","strAscLordStar","strMoonSign","strMoonStar"]} shortLabels={["LL","LS","AL","ML","MS"]} />
         </div>
-        <div className="studio-card" style={{ marginBottom: 16 }}>
+        <div className="studio-card" style={{ marginBottom: 4 }}>
           <CheckSection title="Brain check" data={brainEval} meterId="brain" tableId="brainTableBody" entityIds={["brainGuru","brainGuruStar","brainBudhan","brainBudhanStar","brainMoon","brainMoonStar"]} shortLabels={["G","GS","B","BS","M","MS"]} />
         </div>
-        <div className="studio-card" style={{ marginBottom: 16 }}>
+        <div className="studio-card" style={{ marginBottom: 4 }}>
           <CheckSection title="Mute check" data={muteEval} meterId="mute" tableId="muteTableBody" entityIds={["mute2ndLord","mute2ndLordStar","mute3rdLord","mute3rdLordStar"]} shortLabels={["2L","2LS","3L","3LS"]} />
         </div>
-        <div className="studio-card" style={{ marginBottom: 16 }}>
+        <div className="studio-card" style={{ marginBottom: 4 }}>
           <CheckSection title="Purvapuniya check" data={purvaEval} meterId="purva" tableId="purvaTableBody" entityIds={["purva5thLord","purva5thLordStar"]} shortLabels={["5L","5LS"]} />
         </div>
-        <div className="studio-card" style={{ marginBottom: 16 }}>
+        <div className="studio-card" style={{ marginBottom: 4 }}>
           <CheckSection title="Marriage check" data={marriageEval} meterId="marriage" tableId="marriageTableBody" entityIds={["marriage7thLord","marriage7thLordStar","marriageVenus","marriageVenusStar","marriage2ndLord","marriage2ndLordStar","marriage11thLord","marriage11thLordStar"]} shortLabels={["7L","7LS","V","VS","2L","2LS","11L","11LS"]} />
         </div>
-        <div className="studio-card" style={{ marginBottom: 16 }}>
+        <div className="studio-card" style={{ marginBottom: 4 }}>
           <CheckSection title="Health check" data={healthEval} meterId="health" tableId="healthTableBody" entityIds={["healthAscLord","health6thLord"]} shortLabels={["AL","6L"]} />
         </div>
-        <div className="studio-card" style={{ marginBottom: 16 }}>
+        <div className="studio-card" style={{ marginBottom: 4 }}>
           <CheckSection title="Family check" data={familyEval} meterId="family" tableId="familyTableBody" entityIds={["familySun","familyMoon","familyMars","familyMercury","familyJupiter","familyVenus","familySaturn","familyRahu","familyKetu"]} shortLabels={["Su","Mo","Ma","Me","Ju","Ve","Sa","Ra","Ke"]} />
         </div>
-        <div className="studio-card" style={{ marginBottom: 16 }}>
+        <div className="studio-card" style={{ marginBottom: 4 }}>
           <CheckSection title="Job check" data={jobEval} meterId="job" tableId="jobTableBody" entityIds={["job10thLord","job2ndLord","jobSaturn","job11thLord"]} shortLabels={["10","2","Sa","11"]} />
           {foreignOpp && (
-            <div style={{ marginTop: 8, padding: "8px 10px", background: foreignOpp.isUbhaya ? "rgba(46,125,50,0.08)" : "var(--card-sub)", borderRadius: 6, border: "1px solid " + (foreignOpp.isUbhaya ? "#2E7D32" : "var(--bdr)") }}>
-              <div style={{ fontSize: "0.75rem", fontWeight: 700, marginBottom: 4, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Foreign Opportunity</div>
-              <div style={{ fontSize: "0.8rem" }}>
+            <div style={{ marginTop: 4, padding: "4px 8px", background: foreignOpp.isUbhaya ? "rgba(46,125,50,0.08)" : "var(--card-sub)", borderRadius: 4, border: "1px solid " + (foreignOpp.isUbhaya ? "#2E7D32" : "var(--bdr)") }}>
+              <div style={{ fontSize: "0.65rem", fontWeight: 700, marginBottom: 2, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Foreign Opportunity</div>
+              <div style={{ fontSize: "0.7rem" }}>
                 10th Lord <strong style={{ color: C.PLANET_COLORS[foreignOpp.lord10Name] }}>{foreignOpp.lord10Name}</strong> Star Lord: <strong>{foreignOpp.starLord}</strong> ({foreignOpp.starLordPlanet}) in <strong>{foreignOpp.starLordSign}</strong>
               </div>
-              <div style={{ marginTop: 4, fontWeight: 700, fontSize: "0.85rem", color: foreignOpp.isUbhaya ? "#2E7D32" : "#C62828" }}>
+              <div style={{ marginTop: 2, fontWeight: 700, fontSize: "0.75rem", color: foreignOpp.isUbhaya ? "#2E7D32" : "#C62828" }}>
                 {foreignOpp.isUbhaya ? "✓ High opportunity for foreign job" : "✗ No strong indication for foreign job"}
               </div>
             </div>
           )}
           {businessOffice && (
-            <div style={{ marginTop: 8, padding: "8px 10px", background: businessOffice.isOffice ? "rgba(198,40,40,0.08)" : "rgba(46,125,50,0.08)", borderRadius: 6, border: "1px solid " + (businessOffice.isOffice ? "#C62828" : "#2E7D32") }}>
-              <div style={{ fontSize: "0.75rem", fontWeight: 700, marginBottom: 4, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Business / Office</div>
-              <div style={{ fontSize: "0.8rem" }}>
+            <div style={{ marginTop: 4, padding: "4px 8px", background: businessOffice.isOffice ? "rgba(198,40,40,0.08)" : "rgba(46,125,50,0.08)", borderRadius: 4, border: "1px solid " + (businessOffice.isOffice ? "#C62828" : "#2E7D32") }}>
+              <div style={{ fontSize: "0.65rem", fontWeight: 700, marginBottom: 2, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Business / Office</div>
+              <div style={{ fontSize: "0.7rem" }}>
                 10th Sign: <strong>{businessOffice.tenthSign}</strong> (Ucham: {businessOffice.ucham}, Aatchi: {businessOffice.aatchi})
               </div>
-              <div style={{ fontSize: "0.8rem" }}>
+              <div style={{ fontSize: "0.7rem" }}>
                 Selected: <strong style={{ color: C.PLANET_COLORS[businessOffice.selectedPlanet] }}>{businessOffice.selectedPlanet}</strong> ({businessOffice.selectedReason}) in <strong>{businessOffice.planetSign}</strong> (H{businessOffice.planetBhava})
               </div>
               {businessOffice.conditions.length > 0 && (
-                <div style={{ fontSize: "0.7rem", color: "#C62828", marginTop: 2 }}>
+                <div style={{ fontSize: "0.6rem", color: "#C62828", marginTop: 1 }}>
                   {businessOffice.conditions.map((c, i) => <div key={i}>✗ {c}</div>)}
                 </div>
               )}
-              <div style={{ marginTop: 4, fontWeight: 700, fontSize: "0.85rem", color: businessOffice.isOffice ? "#C62828" : "#2E7D32" }}>
+              <div style={{ marginTop: 2, fontWeight: 700, fontSize: "0.75rem", color: businessOffice.isOffice ? "#C62828" : "#2E7D32" }}>
                 {businessOffice.isOffice ? "✗ Office Work" : "✓ Business Work"}
               </div>
             </div>
           )}
         </div>
-        <div className="studio-card" style={{ marginBottom: 16 }}>
+        <div className="studio-card" style={{ marginBottom: 4 }}>
           <CheckSection title="Sport check" data={sportEval} meterId="sport" tableId="sportTableBody" entityIds={["sport3rdLord"]} shortLabels={["3L"]} />
         </div>
-        {religionData && <div className="studio-card" style={{ marginBottom: 16, borderTop: "3px solid " + (religionData.classification === "North" ? "#D4A017" : religionData.classification === "West" ? "#3B82F6" : "#22C55E") }}>
-          <h3 style={{ margin: "0 0 8px 0", fontSize: "0.9rem" }}>Religion check</h3>
-          <div style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: 8, color: religionData.classification === "North" ? "#D4A017" : religionData.classification === "West" ? "#3B82F6" : "#22C55E" }}>{religionData.classification}</div>
-          <table style={{ width: "100%", fontSize: "0.75rem", borderCollapse: "collapse" }}>
-            <thead><tr><th style={{ textAlign: "left", padding: "2px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Entity</th><th style={{ textAlign: "left", padding: "2px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Star Lord</th></tr></thead>
+        {religionData && <div className="studio-card" style={{ marginBottom: 4, borderTop: "2px solid " + (religionData.classification === "North" ? "#D4A017" : religionData.classification === "West" ? "#3B82F6" : "#22C55E") }}>
+          <h3 style={{ margin: "0 0 4px 0", fontSize: "0.8rem" }}>Religion check</h3>
+          <div style={{ fontSize: "0.95rem", fontWeight: 700, marginBottom: 4, color: religionData.classification === "North" ? "#D4A017" : religionData.classification === "West" ? "#3B82F6" : "#22C55E" }}>{religionData.classification}</div>
+          <table style={{ width: "100%", fontSize: "0.7rem", borderCollapse: "collapse" }}>
+            <thead><tr><th style={{ textAlign: "left", padding: "1px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Entity</th><th style={{ textAlign: "left", padding: "1px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Star Lord</th></tr></thead>
             <tbody>{religionData.items.map((item, i) => (
-              <tr key={i}><td style={{ padding: "2px 4px" }}>{item.label}</td><td style={{ padding: "2px 4px", color: item.starLord === "Rah" ? "#9933FF" : item.starLord === "Ket" ? "#CC6600" : "var(--text)" }}>{item.starLord}</td></tr>
+              <tr key={i}><td style={{ padding: "1px 4px" }}>{item.label}</td><td style={{ padding: "1px 4px", color: item.starLord === "Rah" ? "#9933FF" : item.starLord === "Ket" ? "#CC6600" : "var(--text)" }}>{item.starLord}</td></tr>
             ))}</tbody>
           </table>
-          <div style={{ fontSize: "0.7rem", color: "var(--muted)", marginTop: 6 }}>Rahu: {religionData.rahuCount}/4 | Ketu: {religionData.ketuCount}/4</div>
+          <div style={{ fontSize: "0.65rem", color: "var(--muted)", marginTop: 4 }}>Rahu: {religionData.rahuCount}/4 | Ketu: {religionData.ketuCount}/4</div>
         </div>}
-        {dnaData && <div className="studio-card" style={{ marginBottom: 16, borderTop: "3px solid " + (dnaData.dominant ? C.DNA_KARMA_COLORS[dnaData.dominant] : "#888") }}>
-          <h3 style={{ margin: "0 0 8px 0", fontSize: "0.9rem" }}>DNA Karma check</h3>
-          <table style={{ width: "100%", fontSize: "0.75rem", borderCollapse: "collapse" }}>
+        {dnaData && <div className="studio-card" style={{ marginBottom: 4, borderTop: "2px solid " + (dnaData.dominant ? C.DNA_KARMA_COLORS[dnaData.dominant] : "#888") }}>
+          <h3 style={{ margin: "0 0 4px 0", fontSize: "0.8rem" }}>DNA Karma check</h3>
+          <table style={{ width: "100%", fontSize: "0.7rem", borderCollapse: "collapse" }}>
             <thead><tr>
-              <th style={{ textAlign: "left", padding: "2px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Entity</th>
-              <th style={{ textAlign: "left", padding: "2px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Detail</th>
-              <th style={{ textAlign: "left", padding: "2px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Karma</th>
+              <th style={{ textAlign: "left", padding: "1px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Entity</th>
+              <th style={{ textAlign: "left", padding: "1px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Detail</th>
+              <th style={{ textAlign: "left", padding: "1px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Karma</th>
             </tr></thead>
             <tbody>{dnaData.entities.map((e, i) => (
               <tr key={i}>
-                <td style={{ padding: "2px 4px" }}>{e.label}</td>
-                <td style={{ padding: "2px 4px", color: "var(--muted)" }}>{e.detail}</td>
-                <td style={{ padding: "2px 4px" }}>{e.karmas.map(k => (
-                  <span key={k} style={{ display: "inline-block", background: C.DNA_KARMA_COLORS[k], color: "#fff", padding: "1px 5px", borderRadius: 3, fontWeight: 600, fontSize: "0.65rem", marginRight: 2 }}>{C.DNA_KARMA_LABELS[k]}</span>
+                <td style={{ padding: "1px 4px" }}>{e.label}</td>
+                <td style={{ padding: "1px 4px", color: "var(--muted)" }}>{e.detail}</td>
+                <td style={{ padding: "1px 4px" }}>{e.karmas.map(k => (
+                  <span key={k} style={{ display: "inline-block", background: C.DNA_KARMA_COLORS[k], color: "#fff", padding: "1px 4px", borderRadius: 2, fontWeight: 600, fontSize: "0.6rem", marginRight: 1 }}>{C.DNA_KARMA_LABELS[k]}</span>
                 ))}</td>
               </tr>
             ))}</tbody>
           </table>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
+          <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 4 }}>
             {Object.entries(dnaData.counts).filter(([, v]) => v > 0).map(([k, v]) => (
-              <span key={k} style={{ background: C.DNA_KARMA_COLORS[k] + "22", color: C.DNA_KARMA_COLORS[k], padding: "2px 8px", borderRadius: 3, fontWeight: 600, fontSize: "0.7rem" }}>{C.DNA_KARMA_LABELS[k]}: {v}</span>
+              <span key={k} style={{ background: C.DNA_KARMA_COLORS[k] + "22", color: C.DNA_KARMA_COLORS[k], padding: "1px 6px", borderRadius: 2, fontWeight: 600, fontSize: "0.65rem" }}>{C.DNA_KARMA_LABELS[k]}: {v}</span>
             ))}
           </div>
-          <div style={{ marginTop: 6, fontSize: "0.85rem", fontWeight: 700, color: dnaData.dominant ? C.DNA_KARMA_COLORS[dnaData.dominant] : "var(--muted)" }}>
+          <div style={{ marginTop: 4, fontSize: "0.75rem", fontWeight: 700, color: dnaData.dominant ? C.DNA_KARMA_COLORS[dnaData.dominant] : "var(--muted)" }}>
             {dnaData.isTie ? "⚖️ Tie between multiple karmas" : "✓ " + dnaData.dominantLabel + " is dominant"}
           </div>
+          {dnaData.seventhEntities && <><div style={{ borderTop: "1px dashed var(--bdr)", margin: "6px 0" }}></div>
+          <h4 style={{ margin: "0 0 4px 0", fontSize: "0.75rem", color: "var(--accent)" }}>7th House DNA Match</h4>
+          <table style={{ width: "100%", fontSize: "0.7rem", borderCollapse: "collapse" }}>
+            <thead><tr>
+              <th style={{ textAlign: "left", padding: "1px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Entity</th>
+              <th style={{ textAlign: "left", padding: "1px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Detail</th>
+              <th style={{ textAlign: "left", padding: "1px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Karma</th>
+            </tr></thead>
+            <tbody>{dnaData.seventhEntities.map((e, i) => (
+              <tr key={i}>
+                <td style={{ padding: "1px 4px" }}>{e.label}</td>
+                <td style={{ padding: "1px 4px", color: "var(--muted)" }}>{e.detail}</td>
+                <td style={{ padding: "1px 4px" }}>{e.karmas.map(k => (
+                  <span key={k} style={{ display: "inline-block", background: C.DNA_KARMA_COLORS[k], color: "#fff", padding: "1px 4px", borderRadius: 2, fontWeight: 600, fontSize: "0.6rem", marginRight: 1 }}>{C.DNA_KARMA_LABELS[k]}</span>
+                ))}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+          <div style={{ display: "flex", gap: 4, flexWrap: "wrap", marginTop: 4 }}>
+            {Object.entries(dnaData.seventhCounts).filter(([, v]) => v > 0).map(([k, v]) => (
+              <span key={k} style={{ background: C.DNA_KARMA_COLORS[k] + "22", color: C.DNA_KARMA_COLORS[k], padding: "1px 6px", borderRadius: 2, fontWeight: 600, fontSize: "0.65rem" }}>{C.DNA_KARMA_LABELS[k]}: {v}</span>
+            ))}
+          </div>
+          <div style={{ marginTop: 4, fontSize: "0.75rem", fontWeight: 700, color: dnaData.seventhDominant ? C.DNA_KARMA_COLORS[dnaData.seventhDominant] : "var(--muted)" }}>
+            {dnaData.seventhIsTie ? "⚖️ Tie between multiple karmas" : "✓ " + dnaData.seventhDominantLabel + " is dominant"}
+          </div></>}
         </div>}
       </>) : checkFilter === "religion" ? (
         religionData && <div className="studio-card" style={{ marginBottom: 16 }}>
@@ -452,6 +484,32 @@ export default function App() {
           <div style={{ marginTop: 6, fontSize: "0.85rem", fontWeight: 700, color: dnaData.dominant ? C.DNA_KARMA_COLORS[dnaData.dominant] : "var(--muted)" }}>
             {dnaData.isTie ? "⚖️ Tie between multiple karmas" : "✓ " + dnaData.dominantLabel + " is dominant"}
           </div>
+          {dnaData.seventhEntities && <><div style={{ borderTop: "1px dashed var(--bdr)", margin: "10px 0" }}></div>
+          <h4 style={{ margin: "0 0 6px 0", fontSize: "0.85rem", color: "var(--accent)" }}>7th House DNA Match</h4>
+          <table style={{ width: "100%", fontSize: "0.75rem", borderCollapse: "collapse" }}>
+            <thead><tr>
+              <th style={{ textAlign: "left", padding: "2px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Entity</th>
+              <th style={{ textAlign: "left", padding: "2px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Detail</th>
+              <th style={{ textAlign: "left", padding: "2px 4px", borderBottom: "1px solid var(--bdr-strong)" }}>Karma</th>
+            </tr></thead>
+            <tbody>{dnaData.seventhEntities.map((e, i) => (
+              <tr key={i}>
+                <td style={{ padding: "2px 4px" }}>{e.label}</td>
+                <td style={{ padding: "2px 4px", color: "var(--muted)" }}>{e.detail}</td>
+                <td style={{ padding: "2px 4px" }}>{e.karmas.map(k => (
+                  <span key={k} style={{ display: "inline-block", background: C.DNA_KARMA_COLORS[k], color: "#fff", padding: "1px 5px", borderRadius: 3, fontWeight: 600, fontSize: "0.65rem", marginRight: 2 }}>{C.DNA_KARMA_LABELS[k]}</span>
+                ))}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 6 }}>
+            {Object.entries(dnaData.seventhCounts).filter(([, v]) => v > 0).map(([k, v]) => (
+              <span key={k} style={{ background: C.DNA_KARMA_COLORS[k] + "22", color: C.DNA_KARMA_COLORS[k], padding: "2px 8px", borderRadius: 3, fontWeight: 600, fontSize: "0.7rem" }}>{C.DNA_KARMA_LABELS[k]}: {v}</span>
+            ))}
+          </div>
+          <div style={{ marginTop: 6, fontSize: "0.85rem", fontWeight: 700, color: dnaData.seventhDominant ? C.DNA_KARMA_COLORS[dnaData.seventhDominant] : "var(--muted)" }}>
+            {dnaData.seventhIsTie ? "⚖️ Tie between multiple karmas" : "✓ " + dnaData.seventhDominantLabel + " is dominant"}
+          </div></>}
         </div>
       ) : checkFilter === "job" ? (
         <div className="studio-card" style={{ marginBottom: 16 }}>
@@ -494,7 +552,7 @@ export default function App() {
       )}
 
       {d && (<div style={{ display: showChart ? "block" : "none", marginBottom: 24 }}>
-        <ChartGrid planets={d.planets} cusps={d.cusps} ascendantAbsoluteLong={d.ascendantAbsoluteLong} panchanga={panchanga} birthTime={d.birthTime} config={config} transitPlanets={transitPlanets} onConfigChange={setConfig} />
+        <ChartGrid planets={d.planets} cusps={d.cusps} ascendantAbsoluteLong={d.ascendantAbsoluteLong} panchanga={panchanga} birthTime={d.birthTime} config={config} transitPlanets={transitPlanets} transitPanchanga={transitPanchanga} onConfigChange={setConfig} />
       </div>)}
 
       {d && (<div id="analyticsContainer" style={{ display: showAnalytics ? "block" : "none" }}>
@@ -916,7 +974,11 @@ function computeBusinessOfficeCheck(planets, cusps, ascLong) {
   const pLord = C.PLANET_TO_LORD_MAP[planet.name];
   const sD = C.SIGN_DIGNITY[planetSignIdx];
   const isNeecham = sD.neecham === pLord;
-  const isCombust = planet.isCombust || false;
+  const isPagai = sD.pagai.includes(pLord);
+  const sun = planets.find(p => p.id === "sun");
+  const combustOrbs = { venus: 9, mercury: 13, mars: 17, jupiter: 11, saturn: 15 };
+  const cDiff = sun ? Math.min(Math.abs((planet.absoluteLong - sun.absoluteLong + 360) % 360), 360 - Math.abs((planet.absoluteLong - sun.absoluteLong + 360) % 360)) : 999;
+  const isCombust = combustOrbs[planet.id] && cDiff <= combustOrbs[planet.id] && planet.id !== "sun";
 
   const sixthFrom10th = (tenthSign + 5) % 12;
   const eighthFrom10th = (tenthSign + 7) % 12;
@@ -927,6 +989,7 @@ function computeBusinessOfficeCheck(planets, cusps, ascLong) {
   const conditions = [];
   if (in6thOr8thSign) conditions.push(`Sign ${planetSignName} = ${planetSignIdx === sixthFrom10th ? "6th" : "8th"} from ${tenthSignName}`);
   if (isNeecham) conditions.push("Neecham");
+  if (isPagai) conditions.push("Pagai");
   if (isCombust) conditions.push("Combust");
   if (inBadBhava) conditions.push(`Bhava ${bhava} from asc`);
 
@@ -1029,8 +1092,8 @@ function computeDNACheck(planets, cusps, ascLong) {
   }
 
   const ascPlanetKarma = {
-    Sun: "Surya", Moon: "Moon", Mars: "Mars", Mercury: "Budha",
-    Jupiter: "Guru", Venus: "Venus", Saturn: "Sani", Rahu: "Rahu", Ketu: "Surya"
+    Sun: "Guru", Moon: "Guru", Mars: "Guru", Mercury: "Sani",
+    Jupiter: "Rahu", Venus: "Moon", Saturn: "Mars", Rahu: "Moon", Ketu: "Surya"
   };
 
   const counts = {};
@@ -1085,11 +1148,88 @@ function computeDNACheck(planets, cusps, ascLong) {
     else if (v === maxCount && v > 0) tie = true;
   });
 
+  // ── 7th House DNA Matching ──
+  const seventh = (ascLong + 180) % 360;
+  const sSI = Math.floor(seventh / 30);
+
+  const s7Nak = getStellarData(seventh);
+  const s7NakKarma = C.DNA_NAK_KARMA[s7Nak.index];
+
+  const s7LordCode = C.LORDS_ORDER[C.RASI_DOMINIONS[sSI]];
+  const s7LordPlanet = planets.find(p => p.name === C.STAR_TO_PLANET[s7LordCode]);
+
+  let s7LordKarma = null, s7LordNakName = null, s7LordName = null;
+  if (s7LordPlanet) {
+    const slNak = getStellarData(s7LordPlanet.absoluteLong);
+    s7LordKarma = C.DNA_NAK_KARMA[slNak.index];
+    s7LordNakName = slNak.nak.n;
+    s7LordName = s7LordPlanet.name;
+  }
+
+  const s7RasiKarmas = C.DNA_RASI_KARMA[sSI] || [];
+
+  const seventhCounts = {};
+  Object.keys(C.DNA_KARMA_COLORS).forEach(k => seventhCounts[k] = 0);
+
+  const seventhEntities = [];
+
+  seventhEntities.push({
+    label: "7th Place",
+    detail: s7Nak.nak.n,
+    karmas: [s7NakKarma]
+  });
+  seventhCounts[s7NakKarma]++;
+
+  seventhEntities.push({
+    label: "7th Lord Star",
+    detail: s7LordKarma ? s7LordName + " → " + s7LordNakName : "—",
+    karmas: s7LordKarma ? [s7LordKarma] : []
+  });
+  if (s7LordKarma) seventhCounts[s7LordKarma]++;
+
+  seventhEntities.push({
+    label: "7th Rasi",
+    detail: C.ZODIAC_NAMES[sSI].n,
+    karmas: s7RasiKarmas
+  });
+  s7RasiKarmas.forEach(k => seventhCounts[k]++);
+
+  const planetsIn7th = planets.filter(p => p.id !== "mandi" && Math.floor(p.absoluteLong / 30) === sSI);
+  if (planetsIn7th.length > 0) {
+    planetsIn7th.forEach(p => {
+      const k = ascPlanetKarma[p.name];
+      if (k) {
+        seventhEntities.push({ label: "7th Planet", detail: p.name, karmas: [k] });
+        seventhCounts[k]++;
+      }
+    });
+  } else {
+    seventhEntities.push({ label: "7th Planet", detail: "—", karmas: [] });
+  }
+
+  seventhEntities.push({
+    label: "7th Asc Point",
+    detail: s7Nak.nak.n,
+    karmas: [s7NakKarma]
+  });
+  seventhCounts[s7NakKarma]++;
+
+  let s7MaxCount = 0, s7Dominant = null, s7Tie = false;
+  Object.entries(seventhCounts).forEach(([k, v]) => {
+    if (v > s7MaxCount) { s7MaxCount = v; s7Dominant = k; s7Tie = false; }
+    else if (v === s7MaxCount && v > 0) s7Tie = true;
+  });
+
   return {
     entities,
     counts,
     dominant: tie ? null : dominant,
     dominantLabel: dominant ? C.DNA_KARMA_LABELS[dominant] + " karma" : "Tie",
-    isTie: tie
+    isTie: tie,
+    seventhEntities,
+    seventhCounts,
+    seventhDominant: s7Tie ? null : s7Dominant,
+    seventhDominantLabel: s7Dominant ? C.DNA_KARMA_LABELS[s7Dominant] + " karma" : "Tie",
+    seventhIsTie: s7Tie
   };
 }

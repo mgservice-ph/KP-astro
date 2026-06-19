@@ -15,7 +15,7 @@ const extCell = {
 
 const planetTag = {
   display: "inline-flex", flexDirection: "column", alignItems: "flex-start", gap: "0px",
-  padding: "3px 5px", borderRadius: "3px", fontSize: "0.68rem", fontWeight: 700,
+  padding: "2px 4px", borderRadius: "3px", fontSize: "0.6rem", fontWeight: 700,
   background: "var(--card-sub)", border: "1px solid var(--bdr)",
 };
 
@@ -23,7 +23,7 @@ function PlanetTag({ p, layoutType, panchanga, moonNakIndex }) {
   const st = getStellarData(p.absoluteLong);
   const pColor = C.PLANET_COLORS[p.name] || "var(--fg)";
   const displayDeg = layoutType === "rasi" ? p.signDeg : (p.absoluteLong % 3.333333) * 9;
-  const degHtml = layoutType === "rasi" ? ` <span class="deg" style="font-weight:400;font-size:0.6rem;color:var(--muted);">${Math.floor(displayDeg)}°</span>` : "";
+  const degHtml = layoutType === "rasi" ? ` <span class="deg" style="font-weight:400;font-size:0.5rem;color:var(--muted);">${Math.floor(displayDeg)}°</span>` : "";
   const isMoon = p.name === "Moon";
 
   let marker = "";
@@ -50,7 +50,7 @@ function PlanetTag({ p, layoutType, panchanga, moonNakIndex }) {
         {p.isRetro ? <span style={{ color: "#C93B3B", fontSize: "0.65rem", fontWeight: 800 }}>R</span> : null}
         <span dangerouslySetInnerHTML={{ __html: degHtml }} />
       </span>
-      <span style={{ fontSize: "0.55rem", lineHeight: 1.3, marginTop: "1px", opacity: 0.9 }}>
+      <span style={{ fontSize: "0.5rem", lineHeight: 1.2, marginTop: "1px", opacity: 0.9 }}>
         <span style={{ color: isMoon ? "#858585" : "var(--star-clr)", fontWeight: 700 }}>{st.starLord}</span>
         <span style={{ color: isMoon ? "#858585" : "var(--muted)" }}>·P{st.pada}</span>
         {layoutType === "rasi" ? <span style={{ color: isMoon ? "#858585" : "var(--fg)", fontWeight: 600 }}>{st.subLord}</span> : null}
@@ -59,12 +59,14 @@ function PlanetTag({ p, layoutType, panchanga, moonNakIndex }) {
   );
 }
 
-function ExtrusionPlanet({ p }) {
+function ExtrusionPlanet({ p, panchanga }) {
   const st = getStellarData(p.absoluteLong);
   const pColor = C.PLANET_COLORS[p.name] || "var(--fg)";
+  const hasTS = panchanga && panchanga.soonyaGrahas && panchanga.soonyaGrahas.includes(p.name);
   return (
     <span style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
       <span style={{ fontWeight: 700, color: pColor }}>{p.name}</span>
+      {hasTS ? <span style={{ color: "#C62828", fontWeight: 700, fontSize: "0.5rem" }}>(TS)</span> : null}
       {p.isRetro ? <span style={{ color: "#C93B3B", fontSize: "0.65rem", fontWeight: 800 }}>R</span> : null}
       {` ${C.ZODIAC_NAMES[p.signIndex].s}${Math.floor(p.signDeg)}° `}
       <span style={{ color: "var(--muted)" }}>{st.starLord}</span>
@@ -73,25 +75,26 @@ function ExtrusionPlanet({ p }) {
   );
 }
 
-function TransitExtrusionBar({ planets, signIndices, isLeftRight }) {
+function TransitExtrusionBar({ planets, signIndices, isLeftRight, panchanga }) {
+  const cell = (si) => {
+    const hasSoonya = si != null && panchanga && panchanga.soonyaSigns && panchanga.soonyaSigns.includes(si);
+    return (
+      <div style={{ ...extCell, position: "relative" }}>
+        {hasSoonya ? <span style={{ position: "absolute", top: 0, right: 2, color: "#C93B3B", fontSize: "0.7rem", fontWeight: 900, lineHeight: 1 }}>✗</span> : null}
+        {si != null && planets ? planets.filter(p => p.signIndex === si).map((p, j) => <ExtrusionPlanet key={j} p={p} panchanga={panchanga} />) : null}
+      </div>
+    );
+  };
   if (isLeftRight) {
     return (
       <div style={{ display: "grid", gridTemplateRows: "repeat(4, 1fr)", gap: "1px", width: "48px", flexShrink: 0, alignItems: "center" }}>
-        {signIndices.map((si, i) => (
-          <div key={i} style={extCell}>
-            {si != null && planets ? planets.filter(p => p.signIndex === si).map((p, j) => <ExtrusionPlanet key={j} p={p} />) : null}
-          </div>
-        ))}
+        {signIndices.map((si, i) => cell(si))}
       </div>
     );
   }
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1px", flex: 1, border: "2px solid transparent", borderRadius: "8px" }}>
-      {signIndices.map((si, i) => (
-        <div key={i} style={extCell}>
-          {planets ? planets.filter(p => p.signIndex === si).map((p, j) => <ExtrusionPlanet key={j} p={p} />) : null}
-        </div>
-      ))}
+      {signIndices.map((si, i) => cell(si))}
     </div>
   );
 }
@@ -203,7 +206,7 @@ function D9Grid({ planets, ascendantAbsoluteLong }) {
   return <>{cells}</>;
 }
 
-export default function ChartGrid({ planets, cusps, ascendantAbsoluteLong, panchanga, birthTime, transitPlanets }) {
+export default function ChartGrid({ planets, cusps, ascendantAbsoluteLong, panchanga, birthTime, transitPlanets, transitPanchanga }) {
   if (!planets || !cusps) return null;
 
   const gridStyle = {
@@ -229,10 +232,11 @@ export default function ChartGrid({ planets, cusps, ascendantAbsoluteLong, panch
     </div>
   );
 
-  const extTop = transitPlanets ? <TransitExtrusionBar planets={transitPlanets} signIndices={[11, 0, 1, 2]} /> : <TransitExtrusionBar planets={[]} signIndices={[11, 0, 1, 2]} />;
-  const extBtm = transitPlanets ? <TransitExtrusionBar planets={transitPlanets} signIndices={[8, 7, 6, 5]} /> : <TransitExtrusionBar planets={[]} signIndices={[8, 7, 6, 5]} />;
-  const extLeft = transitPlanets ? <TransitExtrusionBar planets={transitPlanets} signIndices={[null, 10, 9, null]} isLeftRight /> : <TransitExtrusionBar planets={[]} signIndices={[null, 10, 9, null]} isLeftRight />;
-  const extRight = transitPlanets ? <TransitExtrusionBar planets={transitPlanets} signIndices={[null, 3, 4, null]} isLeftRight /> : <TransitExtrusionBar planets={[]} signIndices={[null, 3, 4, null]} isLeftRight />;
+  const tp = transitPanchanga || panchanga;
+  const extTop = transitPlanets ? <TransitExtrusionBar planets={transitPlanets} signIndices={[11, 0, 1, 2]} panchanga={tp} /> : <TransitExtrusionBar planets={[]} signIndices={[11, 0, 1, 2]} panchanga={tp} />;
+  const extBtm = transitPlanets ? <TransitExtrusionBar planets={transitPlanets} signIndices={[8, 7, 6, 5]} panchanga={tp} /> : <TransitExtrusionBar planets={[]} signIndices={[8, 7, 6, 5]} panchanga={tp} />;
+  const extLeft = transitPlanets ? <TransitExtrusionBar planets={transitPlanets} signIndices={[null, 10, 9, null]} isLeftRight panchanga={tp} /> : <TransitExtrusionBar planets={[]} signIndices={[null, 10, 9, null]} isLeftRight panchanga={tp} />;
+  const extRight = transitPlanets ? <TransitExtrusionBar planets={transitPlanets} signIndices={[null, 3, 4, null]} isLeftRight panchanga={tp} /> : <TransitExtrusionBar planets={[]} signIndices={[null, 3, 4, null]} isLeftRight panchanga={tp} />;
 
   return (
     <div className="chart-grid-row">
