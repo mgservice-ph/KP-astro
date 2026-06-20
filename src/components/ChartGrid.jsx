@@ -1,5 +1,6 @@
 import * as C from "../data/constants";
 import { getStellarData, formatArcMinutes } from "../utils/astrology";
+import AshtakavargaChart from "./AshtakavargaChart";
 
 const GRID_COORDS = [[11, 0, 1, 2], [10, -1, -1, 3], [9, -1, -1, 4], [8, 7, 6, 5]];
 
@@ -206,7 +207,7 @@ function D9Grid({ planets, ascendantAbsoluteLong }) {
   return <>{cells}</>;
 }
 
-export default function ChartGrid({ planets, cusps, ascendantAbsoluteLong, panchanga, birthTime, transitPlanets, transitPanchanga }) {
+export default function ChartGrid({ planets, cusps, ascendantAbsoluteLong, panchanga, birthTime, transitPlanets, transitPanchanga, ashtakavarga }) {
   if (!planets || !cusps) return null;
 
   const gridStyle = {
@@ -239,31 +240,34 @@ export default function ChartGrid({ planets, cusps, ascendantAbsoluteLong, panch
   const extRight = transitPlanets ? <TransitExtrusionBar planets={transitPlanets} signIndices={[null, 3, 4, null]} isLeftRight panchanga={tp} /> : <TransitExtrusionBar planets={[]} signIndices={[null, 3, 4, null]} isLeftRight panchanga={tp} />;
 
   return (
-    <div className="chart-grid-row">
-      <div className="studio-card" style={{ display: "flex", flexDirection: "column" }}>
-        <h3 style={{ textAlign: "center", justifyContent: "center" }}>RasiChart D1</h3>
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "2px", width: "100%", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ display: "flex", gap: "2px", width: "100%", maxWidth: "550px" }}>
-            <div style={{ width: "48px", flexShrink: 0 }} />
-            {extTop}
-            <div style={{ width: "48px", flexShrink: 0 }} />
-          </div>
-          <div style={{ display: "flex", gap: "2px", width: "100%", maxWidth: "550px" }}>
-            {extLeft}
-            <div style={{ flex: 1, minWidth: 0 }}>{rasiGrid}</div>
-            {extRight}
-          </div>
-          <div style={{ display: "flex", gap: "2px", width: "100%", maxWidth: "550px" }}>
-            <div style={{ width: "48px", flexShrink: 0 }} />
-            {extBtm}
-            <div style={{ width: "48px", flexShrink: 0 }} />
+    <>
+      <div className="chart-grid-row">
+        <div className="studio-card" style={{ display: "flex", flexDirection: "column" }}>
+          <h3 style={{ textAlign: "center", justifyContent: "center" }}>RasiChart D1</h3>
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "2px", width: "100%", alignItems: "center", justifyContent: "center" }}>
+            <div style={{ display: "flex", gap: "2px", width: "100%", maxWidth: "550px" }}>
+              <div style={{ width: "48px", flexShrink: 0 }} />
+              {extTop}
+              <div style={{ width: "48px", flexShrink: 0 }} />
+            </div>
+            <div style={{ display: "flex", gap: "2px", width: "100%", maxWidth: "550px" }}>
+              {extLeft}
+              <div style={{ flex: 1, minWidth: 0 }}>{rasiGrid}</div>
+              {extRight}
+            </div>
+            <div style={{ display: "flex", gap: "2px", width: "100%", maxWidth: "550px" }}>
+              <div style={{ width: "48px", flexShrink: 0 }} />
+              {extBtm}
+              <div style={{ width: "48px", flexShrink: 0 }} />
+            </div>
           </div>
         </div>
+        <div className="studio-card" style={{ display: "flex", flexDirection: "column" }}>
+          <h3 style={{ textAlign: "center", justifyContent: "center" }}>Navamsa D9</h3>
+          <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>{d9Grid}</div>
+        </div>
       </div>
-      <div className="studio-card" style={{ display: "flex", flexDirection: "column" }}>
-        <h3 style={{ textAlign: "center", justifyContent: "center" }}>Navamsa D9</h3>
-        <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>{d9Grid}</div>
-      </div>
-    </div>
+      {ashtakavarga && <AshtakavargaChart data={ashtakavarga} />}
+    </>
   );
 }

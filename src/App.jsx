@@ -152,10 +152,12 @@ export default function App() {
     const foreignOpp = computeForeignOpportunity(planets, cusps, ascLong);
     const businessOffice = computeBusinessOfficeCheck(planets, cusps, ascLong);
     const sportData = computeSportCheck(planets, cusps, ascLong);
+    const studyData = computeStudyCheck(planets, cusps, ascLong);
     const religionData = computeReligionCheck(planets, cusps, ascLong);
     const dnaData = computeDNACheck(planets, cusps, ascLong);
+    const ashtakavarga = computeAshtakavarga(planets, cusps, ascLong);
 
-    setComputedData({ ...data, strData, brainData, muteData, purvaData, marriageData, healthData, familyData, jobData, foreignOpp, businessOffice, sportData, religionData, dnaData });
+    setComputedData({ ...data, strData, brainData, muteData, purvaData, marriageData, healthData, familyData, jobData, foreignOpp, businessOffice, sportData, studyData, religionData, dnaData, ashtakavarga });
     setPanchanga(pData);
     } catch (e) { setComputedData(null); setPanchanga(null); }
   }, [config]);
@@ -272,12 +274,13 @@ export default function App() {
   const foreignOpp = d?.foreignOpp;
   const businessOffice = d?.businessOffice;
   const sportEval = d?.sportData || [];
+  const studyEval = d?.studyData || [];
   const religionData = d?.religionData;
   const dnaData = d?.dnaData;
 
-  const evalMap = { strength: strEval, brain: brainEval, mute: muteEval, purvapuniya: purvaEval, marriage: marriageEval, health: healthEval, family: familyEval, job: jobEval, sport: sportEval };
-  const entityIdMap = { strength: ["strLagnaLord","strLagnaStar","strAscLordStar","strMoonSign","strMoonStar"], brain: ["brainGuru","brainGuruStar","brainBudhan","brainBudhanStar","brainMoon","brainMoonStar"], mute: ["mute2ndLord","mute2ndLordStar","mute3rdLord","mute3rdLordStar"], purvapuniya: ["purva5thLord","purva5thLordStar"], marriage: ["marriage7thLord","marriage7thLordStar","marriageVenus","marriageVenusStar","marriage2ndLord","marriage2ndLordStar","marriage11thLord","marriage11thLordStar"], health: ["healthAscLord","health6thLord"], family: ["familySun","familyMoon","familyMars","familyMercury","familyJupiter","familyVenus","familySaturn","familyRahu","familyKetu"], job: ["job10thLord","job2ndLord","jobSaturn","job11thLord"], sport: ["sport3rdLord"] };
-  const shortLabelMap = { strength: ["LL","LS","AL","ML","MS"], brain: ["G","GS","B","BS","M","MS"], mute: ["2L","2LS","3L","3LS"], purvapuniya: ["5L","5LS"], marriage: ["7L","7LS","V","VS","2L","2LS","11L","11LS"], health: ["AL","6L"], family: ["Su","Mo","Ma","Me","Ju","Ve","Sa","Ra","Ke"], job: ["10","2","Sa","11"], sport: ["3L"] };
+  const evalMap = { strength: strEval, brain: brainEval, mute: muteEval, purvapuniya: purvaEval, marriage: marriageEval, health: healthEval, family: familyEval, job: jobEval, sport: sportEval, study: studyEval };
+  const entityIdMap = { strength: ["strLagnaLord","strLagnaStar","strAscLordStar","strMoonSign","strMoonStar"], brain: ["brainGuru","brainGuruStar","brainBudhan","brainBudhanStar","brainMoon","brainMoonStar"], mute: ["mute2ndLord","mute2ndLordStar","mute3rdLord","mute3rdLordStar"], purvapuniya: ["purva5thLord","purva5thLordStar"], marriage: ["marriage7thLord","marriage7thLordStar","marriageVenus","marriageVenusStar","marriage2ndLord","marriage2ndLordStar","marriage11thLord","marriage11thLordStar"], health: ["healthAscLord","health6thLord"], family: ["familySun","familyMoon","familyMars","familyMercury","familyJupiter","familyVenus","familySaturn","familyRahu","familyKetu"], job: ["job10thLord","job2ndLord","jobSaturn","job11thLord"], sport: ["sport3rdLord"], study: ["studyBudhan"] };
+  const shortLabelMap = { strength: ["LL","LS","AL","ML","MS"], brain: ["G","GS","B","BS","M","MS"], mute: ["2L","2LS","3L","3LS"], purvapuniya: ["5L","5LS"], marriage: ["7L","7LS","V","VS","2L","2LS","11L","11LS"], health: ["AL","6L"], family: ["Su","Mo","Ma","Me","Ju","Ve","Sa","Ra","Ke"], job: ["10","2","Sa","11"], sport: ["3L"], study: ["B"] };
 
   const showChart = viewFilter === "all" || viewFilter === "charts";
   const showAnalytics = viewFilter === "all" || viewFilter === "tables";
@@ -310,7 +313,7 @@ export default function App() {
 
       <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap", marginBottom: 10 }}>
         <span style={{ fontSize: "0.75rem", color: "var(--muted)", marginRight: 4 }}>Check:</span>
-        {["all","strength","brain","mute","purvapuniya","marriage","health","family","job","sport","religion","dna"].map(v => (
+        {["all","strength","brain","mute","purvapuniya","marriage","health","family","job","sport","study","religion","dna"].map(v => (
           <button key={v} style={{
             padding: "4px 10px", borderRadius: "4px", cursor: "pointer", fontSize: "0.75rem",
             textTransform: "capitalize", transition: "background 0.2s",
@@ -346,15 +349,18 @@ export default function App() {
           <CheckSection title="Family check" data={familyEval} meterId="family" tableId="familyTableBody" entityIds={["familySun","familyMoon","familyMars","familyMercury","familyJupiter","familyVenus","familySaturn","familyRahu","familyKetu"]} shortLabels={["Su","Mo","Ma","Me","Ju","Ve","Sa","Ra","Ke"]} />
         </div>
         <div className="studio-card" style={{ marginBottom: 4 }}>
+          <CheckSection title="Study check" data={studyEval} meterId="study" tableId="studyTableBody" entityIds={["studyBudhan"]} shortLabels={["B"]} />
+        </div>
+        <div className="studio-card" style={{ marginBottom: 4 }}>
           <CheckSection title="Job check" data={jobEval} meterId="job" tableId="jobTableBody" entityIds={["job10thLord","job2ndLord","jobSaturn","job11thLord"]} shortLabels={["10","2","Sa","11"]} />
           {foreignOpp && (
-            <div style={{ marginTop: 4, padding: "4px 8px", background: foreignOpp.isUbhaya ? "rgba(46,125,50,0.08)" : "var(--card-sub)", borderRadius: 4, border: "1px solid " + (foreignOpp.isUbhaya ? "#2E7D32" : "var(--bdr)") }}>
+            <div style={{ marginTop: 4, padding: "4px 8px", background: foreignOpp.hasOpportunity ? "rgba(46,125,50,0.08)" : "var(--card-sub)", borderRadius: 4, border: "1px solid " + (foreignOpp.hasOpportunity ? "#2E7D32" : "var(--bdr)") }}>
               <div style={{ fontSize: "0.65rem", fontWeight: 700, marginBottom: 2, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Foreign Opportunity</div>
               <div style={{ fontSize: "0.7rem" }}>
                 10th Lord <strong style={{ color: C.PLANET_COLORS[foreignOpp.lord10Name] }}>{foreignOpp.lord10Name}</strong> Star Lord: <strong>{foreignOpp.starLord}</strong> ({foreignOpp.starLordPlanet}) in <strong>{foreignOpp.starLordSign}</strong>
               </div>
-              <div style={{ marginTop: 2, fontWeight: 700, fontSize: "0.75rem", color: foreignOpp.isUbhaya ? "#2E7D32" : "#C62828" }}>
-                {foreignOpp.isUbhaya ? "✓ High opportunity for foreign job" : "✗ No strong indication for foreign job"}
+              <div style={{ marginTop: 2, fontWeight: 700, fontSize: "0.75rem", color: foreignOpp.hasOpportunity ? "#2E7D32" : "#C62828" }}>
+                {foreignOpp.hasOpportunity ? "✓ High opportunity for foreign job" : "✗ No strong indication for foreign job"}
               </div>
             </div>
           )}
@@ -515,13 +521,13 @@ export default function App() {
         <div className="studio-card" style={{ marginBottom: 16 }}>
           <CheckSection title="Job check" data={jobEval} meterId="job" tableId="jobTableBody" entityIds={["job10thLord","job2ndLord","jobSaturn","job11thLord"]} shortLabels={["10","2","Sa","11"]} />
           {foreignOpp && (
-            <div style={{ marginTop: 8, padding: "8px 10px", background: foreignOpp.isUbhaya ? "rgba(46,125,50,0.08)" : "var(--card-sub)", borderRadius: 6, border: "1px solid " + (foreignOpp.isUbhaya ? "#2E7D32" : "var(--bdr)") }}>
+            <div style={{ marginTop: 8, padding: "8px 10px", background: foreignOpp.hasOpportunity ? "rgba(46,125,50,0.08)" : "var(--card-sub)", borderRadius: 6, border: "1px solid " + (foreignOpp.hasOpportunity ? "#2E7D32" : "var(--bdr)") }}>
               <div style={{ fontSize: "0.75rem", fontWeight: 700, marginBottom: 4, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Foreign Opportunity</div>
               <div style={{ fontSize: "0.8rem" }}>
                 10th Lord <strong style={{ color: C.PLANET_COLORS[foreignOpp.lord10Name] }}>{foreignOpp.lord10Name}</strong> Star Lord: <strong>{foreignOpp.starLord}</strong> ({foreignOpp.starLordPlanet}) in <strong>{foreignOpp.starLordSign}</strong>
               </div>
-              <div style={{ marginTop: 4, fontWeight: 700, fontSize: "0.85rem", color: foreignOpp.isUbhaya ? "#2E7D32" : "#C62828" }}>
-                {foreignOpp.isUbhaya ? "✓ High opportunity for foreign job" : "✗ No strong indication for foreign job"}
+              <div style={{ marginTop: 4, fontWeight: 700, fontSize: "0.85rem", color: foreignOpp.hasOpportunity ? "#2E7D32" : "#C62828" }}>
+                {foreignOpp.hasOpportunity ? "✓ High opportunity for foreign job" : "✗ No strong indication for foreign job"}
               </div>
             </div>
           )}
@@ -552,7 +558,7 @@ export default function App() {
       )}
 
       {d && (<div style={{ display: showChart ? "block" : "none", marginBottom: 24 }}>
-        <ChartGrid planets={d.planets} cusps={d.cusps} ascendantAbsoluteLong={d.ascendantAbsoluteLong} panchanga={panchanga} birthTime={d.birthTime} config={config} transitPlanets={transitPlanets} transitPanchanga={transitPanchanga} onConfigChange={setConfig} />
+        <ChartGrid planets={d.planets} cusps={d.cusps} ascendantAbsoluteLong={d.ascendantAbsoluteLong} panchanga={panchanga} birthTime={d.birthTime} config={config} transitPlanets={transitPlanets} transitPanchanga={transitPanchanga} onConfigChange={setConfig} ashtakavarga={d?.ashtakavarga} />
       </div>)}
 
       {d && (<div id="analyticsContainer" style={{ display: showAnalytics ? "block" : "none" }}>
@@ -944,13 +950,29 @@ function computeForeignOpportunity(planets, cusps, ascLong) {
   const starLordPlanet = planets.find(p => p.name === C.STAR_TO_PLANET[starData.starLord]);
   if (!starLordPlanet) return null;
   const isUbhaya = ubhayaRasis.includes(starLordPlanet.signIndex);
+  const ascStarData = getStellarData(ascLong);
+  const rahuPlanet = planets.find(p => p.name === "Rahu");
+  const mentionedRasis = [2, 6, 10];
+  let condition1 = false, condition2 = false;
+  if (ascStarData && rahuPlanet) {
+    const rahuStarData = getStellarData(rahuPlanet.absoluteLong);
+    condition1 = ascStarData.starLord === rahuStarData.starLord && mentionedRasis.includes(rahuPlanet.signIndex);
+    if (!condition1) {
+      const ascStarLordPlanet = planets.find(p => p.name === C.STAR_TO_PLANET[ascStarData.starLord]);
+      condition2 = ascStarLordPlanet && mentionedRasis.includes(ascStarLordPlanet.signIndex);
+    }
+  }
+  const hasOpportunity = isUbhaya || condition1 || condition2;
   return {
     lord10Name: l10Planet.name,
     starLord: starData.starLord,
     starLordPlanet: starLordPlanet.name,
     starLordSign: C.ZODIAC_NAMES[starLordPlanet.signIndex]?.n + " " + C.ZODIAC_NAMES[starLordPlanet.signIndex]?.s,
     starLordSignIdx: starLordPlanet.signIndex,
-    isUbhaya
+    isUbhaya,
+    condition1,
+    condition2,
+    hasOpportunity
   };
 }
 
@@ -1032,6 +1054,122 @@ function computeSportCheck(planets, cusps, ascLong) {
   if ((e.bhavaIdx === 8 || e.bhavaIdx === 12) && slIssue) { wr.push(`3rd Lord in H${e.bhavaIdx}`); sc -= 2; }
   let st = sc >= 0 ? "MEDIUM" : "WEAK";
   return [{ entity: e, evaluation: { status: st, score: sc, strongReasons: [], weakReasons: wr, guruAspect: false } }];
+}
+
+function computeStudyCheck(planets, cusps, ascLong) {
+  const mercury = planets.find(p => p.name === "Mercury");
+  if (!mercury) return [];
+  const e = buildEntityFromPlanet("Budhan (Mercury)", mercury, cusps, planets);
+  if (!e) return [];
+  const wr = []; const sr = []; let sc = 0;
+  const slN = C.STAR_TO_PLANET[e.starLord];
+  const slP = planets.find(p => p.name === slN);
+  if (slP) {
+    const sB = getBhavaIndex(slP.absoluteLong, cusps);
+    if (sB === 6 || sB === 8 || sB === 12) {
+      wr.push(`${slN} (star lord of Mercury) in H${sB}`); sc -= 2;
+    }
+    const sC = C.PLANET_TO_LORD_MAP[slN];
+    const sD = C.SIGN_DIGNITY[slP.signIndex];
+    if (sD && sD.neecham === sC) {
+      wr.push(`${slN} (star lord of Mercury) is Neecham`); sc -= 2;
+    }
+    const sL = planets.find(p => p.id === "sun")?.absoluteLong || 0;
+    const dI = Math.min(Math.abs((slP.absoluteLong - sL + 360) % 360), 360 - Math.abs((slP.absoluteLong - sL + 360) % 360));
+    const CO = { venus: 9, mercury: 13, mars: 17, jupiter: 11, saturn: 15 };
+    if (CO[slP.id] && dI <= CO[slP.id] && slP.id !== "sun") {
+      wr.push(`${slN} (star lord of Mercury) is Combust`); sc -= 2;
+    }
+  }
+  if (wr.length === 0) {
+    sr.push("Mercury's star lord — no afflictions, good for studies"); sc += 2;
+  }
+  let st = sc >= 0 ? "MEDIUM" : "WEAK";
+  return [{ entity: e, evaluation: { status: st, score: sc, strongReasons: sr, weakReasons: wr, guruAspect: false } }];
+}
+
+function computeAshtakavarga(planets, cusps, ascLong) {
+  const aSI = Math.floor(ascLong / 30);
+  const sourceOrder = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn","Lagna"];
+  const targetNames = ["Sun","Moon","Mars","Mercury","Jupiter","Venus","Saturn"];
+  const planetMap = {};
+  planets.forEach(p => { planetMap[p.name] = p.signIndex; });
+  planetMap.Lagna = aSI;
+
+  const RULES = {
+    Sun: {
+      Sun: [1,2,4,7,8,9,10,11], Moon: [3,6,10,11], Mars: [1,2,4,7,8,9,10,11],
+      Mercury: [3,5,6,9,10,11,12], Jupiter: [5,6,9,11], Venus: [6,7,12],
+      Saturn: [1,2,4,7,8,9,10,11], Lagna: [3,4,6,10,11,12]
+    },
+    Moon: {
+      Sun: [3,6,7,8,10,11], Moon: [1,3,6,7,10,11], Mars: [2,3,5,6,9,10,11],
+      Mercury: [1,3,4,5,7,8,10,11], Jupiter: [1,4,7,8,10,11,12], Venus: [3,4,5,7,9,10,11],
+      Saturn: [3,5,6,11], Lagna: [3,6,10,11]
+    },
+    Mars: {
+      Sun: [3,5,6,10,11], Moon: [3,6,11], Mars: [1,2,4,7,8,10,11],
+      Mercury: [3,5,6,11], Jupiter: [6,10,11,12], Venus: [6,8,11,12],
+      Saturn: [1,4,7,8,9,10,11], Lagna: [1,3,6,10,11]
+    },
+    Mercury: {
+      Sun: [5,6,9,11,12], Moon: [2,4,6,8,10,11], Mars: [1,2,4,7,8,9,10,11],
+      Mercury: [1,3,5,6,9,10,11,12], Jupiter: [6,8,11,12], Venus: [1,2,3,4,5,8,9,11],
+      Saturn: [1,2,4,7,8,9,10,11], Lagna: [1,2,4,6,8,10,11]
+    },
+    Jupiter: {
+      Sun: [1,2,3,4,7,8,9,10,11], Moon: [2,5,7,9,11], Mars: [1,2,4,7,8,10,11],
+      Mercury: [1,2,4,5,6,9,10,11], Jupiter: [1,2,3,4,7,8,10,11], Venus: [2,5,6,9,10,11],
+      Saturn: [3,5,6,12], Lagna: [1,2,4,5,6,7,9,10,11]
+    },
+    Venus: {
+      Sun: [8,11,12], Moon: [1,2,3,4,5,8,9,11,12], Mars: [3,5,6,9,11,12],
+      Mercury: [3,5,6,9,11], Jupiter: [5,8,9,10,11], Venus: [1,2,3,4,5,8,9,10,11],
+      Saturn: [3,4,5,8,9,10,11], Lagna: [1,2,3,4,5,8,9,11]
+    },
+    Saturn: {
+      Sun: [1,2,4,7,8,10,11], Moon: [3,6,11], Mars: [3,5,6,10,11,12],
+      Mercury: [6,8,9,10,11,12], Jupiter: [5,6,11,12], Venus: [6,11,12],
+      Saturn: [3,5,6,11], Lagna: [1,3,4,6,10,11]
+    },
+    Lagna: {
+      Sun: [3,4,6,10,11,12], Moon: [3,6,10,11,12], Mars: [1,3,6,10,11],
+      Mercury: [1,2,4,6,8,10,11], Jupiter: [1,2,4,5,6,7,9,10,11],
+      Venus: [1,2,3,4,5,8,9], Saturn: [1,3,4,6,10,11], Lagna: [3,6,10,11]
+    }
+  };
+
+  const sarva = Array(12).fill(0);
+  const chart = {};
+  targetNames.forEach(target => {
+    const row = Array(12).fill(0);
+    const rules = RULES[target];
+    sourceOrder.forEach(sourceName => {
+      const sourceRasi = planetMap[sourceName];
+      if (sourceRasi === undefined) return;
+      rules[sourceName].forEach(h => {
+        const idx = (sourceRasi + h - 1) % 12;
+        row[idx]++;
+      });
+    });
+    chart[target] = row;
+    for (let i = 0; i < 12; i++) sarva[i] += row[i];
+  });
+  chart.Sarva = sarva;
+  {
+    const row = Array(12).fill(0);
+    const rules = RULES["Lagna"];
+    sourceOrder.forEach(sourceName => {
+      const sourceRasi = sourceName === "Lagna" ? aSI : planetMap[sourceName];
+      if (sourceRasi === undefined) return;
+      rules[sourceName].forEach(h => {
+        const idx = (sourceRasi + h - 1) % 12;
+        row[idx]++;
+      });
+    });
+    chart["Lagna"] = row;
+  }
+  return { chart };
 }
 
 function computeReligionCheck(planets, cusps, ascLong) {
