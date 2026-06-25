@@ -53,6 +53,11 @@ export function getBhavaIndex(pLong, computedCusps) {
   return 1;
 }
 
+export function computeTamilMonth(sunLong) {
+  const signIndex = Math.floor((((sunLong % 360) + 360) % 360) / 30);
+  return C.TAMIL_MONTHS[signIndex];
+}
+
 export function computeVaara(jd) {
   return C.VAARA_NAMES[Math.floor(jd + 1.5) % 7];
 }

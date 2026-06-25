@@ -47,6 +47,7 @@ export const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X
 export const GRID_COORDS = [[11, 0, 1, 2], [10, -1, -1, 3], [9, -1, -1, 4], [8, 7, 6, 5]];
 export const BASELINE_AYANAMSAS = { kp: 23.74, lahiri: 23.93, raman: 22.76 };
 export const TAMIL_SIGNS = ["Mesham", "Rishabham", "Mithunam", "Kadakam", "Simmam", "Kanni", "Thulam", "Viruchigam", "Dhanusu", "Magaram", "Kumbam", "Meenam"];
+export const TAMIL_MONTHS = ["Chithirai", "Vaikasi", "Aani", "Aadi", "Aavani", "Purattasi", "Aippasi", "Karthigai", "Maargazhi", "Thai", "Maasi", "Panguni"];
 
 export const SIGN_DIGNITY = [
   { ucham: "Sun", neecham: "Sat", aatshi: ["Mar"], pagai: [], natpu: ["Jup"], samam: ["Ven", "Mer", "Moo"] },

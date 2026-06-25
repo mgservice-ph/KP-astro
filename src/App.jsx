@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import * as C from "./data/constants";
 import {
   getStellarData, formatArcMinutes, getBhavaIndex,
-  computeVaara, computeThithi, computeYoga, computeKarana, computeThithiSoonya,
+  computeVaara, computeThithi, computeYoga, computeKarana, computeThithiSoonya, computeTamilMonth,
   calculateMandi, calculateMandiEx, computePlacidusSystem,
   checkPushkarNavamsam, checkGuruAspect, checkPavagraha68Rule,
   checkPathagamDusthanaRule, checkEdgeIssue, checkMiruthiviPagai,
@@ -136,6 +136,7 @@ export default function App() {
         soonyaSigns: so.signs, soonyaGrahas: so.grahas,
         vainasikaNakIndex: (nak.index + 21) % 27,
         yogiLordShort: yN.starLord, avayogiLordShort: aN.starLord,
+        tamilMonth: computeTamilMonth(sun.absoluteLong),
       };
     }
 

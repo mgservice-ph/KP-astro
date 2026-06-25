@@ -18,6 +18,7 @@ export default function PanchangaCard({ data }) {
     { label: "Nakshatra", value: data.nakshatra },
     { label: "Karanam", value: data.karana },
     { label: "Day Lord", value: data.dayLord },
+    { label: "Tamil Maasam", value: data.tamilMonth },
   ];
 
   const yogiData = data.yogiAvayogi;
