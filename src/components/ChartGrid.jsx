@@ -77,10 +77,10 @@ function ExtrusionPlanet({ p, panchanga }) {
 }
 
 function TransitExtrusionBar({ planets, signIndices, isLeftRight, panchanga }) {
-  const cell = (si) => {
+  const cell = (si, i) => {
     const hasSoonya = si != null && panchanga && panchanga.soonyaSigns && panchanga.soonyaSigns.includes(si);
     return (
-      <div style={{ ...extCell, position: "relative" }}>
+      <div key={i} style={{ ...extCell, position: "relative" }}>
         {hasSoonya ? <span style={{ position: "absolute", top: 0, right: 2, color: "#C93B3B", fontSize: "0.7rem", fontWeight: 900, lineHeight: 1 }}>✗</span> : null}
         {si != null && planets ? planets.filter(p => p.signIndex === si).map((p, j) => <ExtrusionPlanet key={j} p={p} panchanga={panchanga} />) : null}
       </div>
@@ -89,13 +89,13 @@ function TransitExtrusionBar({ planets, signIndices, isLeftRight, panchanga }) {
   if (isLeftRight) {
     return (
       <div style={{ display: "grid", gridTemplateRows: "repeat(4, 1fr)", gap: "1px", width: "48px", flexShrink: 0, alignItems: "center" }}>
-        {signIndices.map((si, i) => cell(si))}
+        {signIndices.map((si, i) => cell(si, i))}
       </div>
     );
   }
   return (
     <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1px", flex: 1, border: "2px solid transparent", borderRadius: "8px" }}>
-      {signIndices.map((si, i) => cell(si))}
+      {signIndices.map((si, i) => cell(si, i))}
     </div>
   );
 }
