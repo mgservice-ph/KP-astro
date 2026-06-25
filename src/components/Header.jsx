@@ -25,7 +25,7 @@ export default function Header({ theme, onThemeToggle }) {
         <h1 style={titleStyle}>Krishnamurti Paddhati</h1>
         <p style={subtitleStyle}>Precision Relational System &bull; Placidus Coordinate Engine</p>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+      <div className="print-hide" style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
         <button style={btnStyle} onClick={onThemeToggle}>&#9681; {theme === "dark" ? "Light" : "Dark"} Mode</button>
       </div>
     </header>

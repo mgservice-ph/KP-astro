@@ -733,3 +733,115 @@ body {
   .cusp-flex { grid-template-columns: repeat(6, 1fr); }
   .pratyantar-grid { grid-template-columns: repeat(3, 1fr); }
 }
+
+@media print {
+  @page { margin: 10mm; size: A4 portrait; }
+
+  :root:not(#_) {
+    --bg: #FAFAF8;
+    --fg: #1A1A1A;
+    --bdr: #E2DFD8;
+    --bdr-strong: #B0ADA6;
+    --card: #FFFFFF;
+    --card-sub: #F4F3EF;
+    --muted: #7D7B74;
+    --accent: #C9603F;
+    --accent-light: rgba(201, 96, 63, 0.08);
+    --accent-strong: #B04D2E;
+    --table-hov: #F8F7F5;
+    --grid-empty: #EDECE8;
+    --star-clr: #4A7A4A;
+    --shadow: none;
+    --active-bg: #FDF6F2;
+    --active-border: #C9603F;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  html { background: #FAFAF8 !important; }
+  body { background: #FAFAF8 !important; padding: 0 !important; }
+
+  .control-panel,
+  .print-hide,
+  .footer,
+  .live-tracker-panel { display: none !important; }
+
+  .toggle-btn { display: none !important; }
+
+  .table-responsive.collapsed,
+  .cusp-flex.collapsed { display: block !important; }
+
+  .workspace-grid { grid-template-columns: 1fr !important; gap: 16px !important; }
+  #chartsContainer.workspace-grid { grid-template-columns: 1fr !important; }
+  .chart-grid-row { grid-template-columns: 1fr !important; }
+
+  .container { max-width: 100% !important; }
+
+  .south-indian-grid { max-width: 420px !important; }
+
+  .studio-card {
+    page-break-inside: avoid;
+    box-shadow: none !important;
+    border: 1px solid #E2DFD8 !important;
+  }
+
+  .meta-bar {
+    font-size: 0.75rem !important;
+    padding: 6px 10px !important;
+    margin-bottom: 12px !important;
+  }
+
+  .header {
+    margin-bottom: 12px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .studio-card h3 { font-size: 1rem !important; margin-bottom: 8px !important; }
+
+  .data-table { font-size: 0.6rem !important; }
+  .data-table th,
+  .data-table td { padding: 4px 6px !important; }
+
+  .dasha-child-container { display: block !important; }
+  .pratyantar-container { display: block !important; }
+
+  .d1-extrusion .extrusion-left,
+  .d1-extrusion .extrusion-right { width: 36px !important; font-size: 0.45rem !important; }
+  .d1-extrusion .extrusion-bar-row .extrusion-top,
+  .d1-extrusion .extrusion-bar-row .extrusion-bottom { font-size: 0.45rem !important; }
+  .d1-extrusion .extrusion-bar-row .extrusion-spacer { min-width: 36px !important; }
+
+  .panchanga-grid { gap: 8px !important; }
+  .panchanga-item { min-height: 60px !important; padding: 8px 10px !important; }
+  .panchanga-value { font-size: 0.95rem !important; }
+
+  .rp-grid { gap: 8px !important; }
+  .rp-item { padding: 6px 8px !important; }
+  .rp-value { font-size: 0.9rem !important; }
+
+  .cusp-flex { grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
+  .cusp-card { padding: 6px !important; }
+
+  .planet-tag { font-size: 0.55rem !important; padding: 1px 3px !important; }
+  .planet-tag .deg { font-size: 0.5rem !important; }
+  .planet-tag .kp-lords { font-size: 0.45rem !important; }
+  .cell { padding: 3px !important; }
+  .cell-sign { font-size: 0.55rem !important; }
+  .kp-cusp-badge { font-size: 0.55rem !important; padding: 1px 3px !important; }
+  .age-tag { font-size: 0.55rem !important; }
+
+  .dasha-row { margin-bottom: 4px !important; }
+  .dasha-trigger { padding: 6px 8px !important; font-size: 0.8rem !important; }
+  .bhukti-trigger { padding: 5px 8px !important; font-size: 0.7rem !important; }
+  .pratyantar-item { padding: 4px 8px !important; font-size: 0.65rem !important; }
+
+  .live-tracker-panel + * { margin-top: 0 !important; }
+
+  body > .container > :not(.control-panel):not(.print-hide):not(.footer):not(.live-tracker-panel) {
+    page-break-inside: avoid;
+  }
+}

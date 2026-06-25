@@ -298,7 +298,8 @@ export default function App() {
         </div>
       </div>
 
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginBottom: 12, fontSize: "0.65rem" }}>
+      <div className="print-hide" style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginBottom: 12, fontSize: "0.65rem" }}>
+        <button onClick={() => window.print()} className="btn-print" style={{ background: "var(--accent)", border: "none", color: "#fff", cursor: "pointer", fontSize: "0.8rem", fontFamily: "inherit", fontWeight: 700, padding: "6px 16px", borderRadius: 6, minHeight: 36 }}>Print Report</button>
         <button onClick={() => setShowChangePwd(true)} style={{ background: "none", border: "none", color: "var(--muted)", cursor: "pointer", fontSize: "0.65rem", fontFamily: "inherit" }}>Change Password</button>
         <span style={{ color: "var(--bdr-strong)" }}>|</span>
         <button onClick={() => { sessionStorage.removeItem("adminLoggedIn"); setIsLoggedIn(false); }} style={{ background: "none", border: "none", color: "var(--muted)", cursor: "pointer", fontSize: "0.65rem", fontFamily: "inherit" }}>Logout</button>
@@ -311,7 +312,7 @@ export default function App() {
 
       <LiveTracker activeDasha={activeDasha} visible={!!activeDasha.mahadasha} />
 
-      <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap", marginBottom: 10 }}>
+      <div className="print-hide" style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap", marginBottom: 10 }}>
         <span style={{ fontSize: "0.75rem", color: "var(--muted)", marginRight: 4 }}>Check:</span>
         {["all","strength","brain","mute","purvapuniya","marriage","health","family","job","sport","study","religion","dna"].map(v => (
           <button key={v} style={{
