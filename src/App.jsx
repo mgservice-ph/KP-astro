@@ -320,7 +320,7 @@ export default function App() {
         <span style={{ fontSize: "0.75rem", color: "var(--muted)", marginRight: 4 }}>Check:</span>
         {["all","strength","brain","mute","purvapuniya","marriage","health","family","job","sport","study","religion","dna","physical"].map(v => (
           <button key={v} style={{
-            padding: "4px 10px", borderRadius: "4px", cursor: "pointer", fontSize: "0.75rem", minHeight: 44,
+            padding: "4px 10px", borderRadius: "4px", cursor: "pointer", fontSize: "0.75rem",
             textTransform: "capitalize", transition: "background 0.2s",
             background: checkFilter === v ? "var(--accent)" : "var(--card-sub)",
             color: checkFilter === v ? "#fff" : "var(--accent)",
