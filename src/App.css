@@ -567,7 +567,7 @@ body {
 
 .cusp-flex { 
   display: grid; 
-  grid-template-columns: repeat(2, 1fr); 
+  grid-template-columns: 1fr; 
   gap: 8px; 
 }
 .cusp-flex.collapsed { display: none; }
@@ -665,6 +665,7 @@ body {
   .control-panel { grid-template-columns: repeat(2, 1fr); }
   .control-panel .span-2 { grid-column: span 2; }
   .control-panel .btn-compute { grid-column: span 2; }
+  .cusp-flex { grid-template-columns: repeat(2, 1fr); }
   .cell-header { flex-direction: row; justify-content: space-between; align-items: center; }
   .planet-tag { flex-direction: row; justify-content: space-between; align-items: center; padding: 2px 4px; }
   .planet-tag-meta-line { width: auto; gap: 4px; }

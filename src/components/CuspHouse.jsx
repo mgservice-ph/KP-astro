@@ -1,19 +1,6 @@
 import * as C from "../data/constants";
 import { getStellarData } from "../utils/astrology";
 
-const wrap = {
-  background: "var(--card)", border: "1px solid var(--bdr)", borderRadius: "6px",
-  padding: "10px", margin: "10px 0", overflowX: "auto"
-};
-const headerStyle = { margin: "0 0 6px 0", fontSize: "0.85rem", fontFamily: "'Playfair Display',serif", color: "var(--accent)" };
-const tableStyle = { width: "100%", tableLayout: "fixed", borderCollapse: "collapse", fontSize: "0.72rem", minWidth: "600px" };
-const thStyle = {
-  padding: "4px 4px", borderBottom: "1px solid var(--bdr)", color: "var(--muted)",
-  textAlign: "left", fontWeight: 600, fontSize: "0.65rem", textTransform: "uppercase",
-  whiteSpace: "nowrap"
-};
-const tdStyle = { padding: "3px 4px", borderBottom: "1px solid var(--bdr)", color: "var(--fg)", whiteSpace: "nowrap" };
-
 export default function CuspHouse({ cusps, planets }) {
   const cuspList = (cusps || []).slice(1, 13).map((cusp, i) => {
     const signIdx = Math.floor(cusp / 30);
@@ -30,32 +17,23 @@ export default function CuspHouse({ cusps, planets }) {
   });
 
   return (
-    <div style={wrap}>
-      <h3 style={headerStyle}>Cuspal Bhava Linkage</h3>
-      <table style={tableStyle}>
-        <thead>
-          <tr>
-            <th style={{ ...thStyle, width: "8%" }}>House</th>
-            <th style={{ ...thStyle, width: "18%" }}>Sign</th>
-            <th style={{ ...thStyle, width: "12%" }}>Deg</th>
-            <th style={{ ...thStyle, width: "22%" }}>Star Lord</th>
-            <th style={{ ...thStyle, width: "18%" }}>Sub Lord</th>
-            <th style={{ ...thStyle, width: "22%" }}>Planets</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cuspList.map((c, i) => (
-            <tr key={i}>
-              <td style={{ ...tdStyle, fontWeight: 600 }}>{c.house}</td>
-              <td style={tdStyle}>{C.ZODIAC_NAMES[c.signIdx].s} ({C.LORDS_ORDER[C.RASI_DOMINIONS[c.signIdx]]})</td>
-              <td style={tdStyle}>{c.signDeg.toFixed(2)}°</td>
-              <td style={tdStyle}>{c.st.starLord} P{c.st.pada}</td>
-              <td style={tdStyle}>{c.st.subLord}</td>
-              <td style={tdStyle}>{c.housePlanets.length > 0 ? c.housePlanets.map(p => p.name).join(", ") : "—"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="studio-card">
+      <h3 style={{ fontFamily: "'Playfair Display', Georgia, serif", fontSize: "1.15rem", marginBottom: 14, paddingBottom: 8, borderBottom: "1px solid var(--bdr)", fontWeight: 700 }}>Cuspal Bhava Linkage</h3>
+      <div className="cusp-flex">
+        {cuspList.map((c, i) => (
+          <div key={i} className="cusp-card">
+            <h4>House {c.house}</h4>
+            <p>{C.ZODIAC_NAMES[c.signIdx].s} ({C.LORDS_ORDER[C.RASI_DOMINIONS[c.signIdx]]})</p>
+            <p style={{ fontSize: "0.68rem", color: "var(--muted)" }}>{c.signDeg.toFixed(2)}°</p>
+            <div>{c.st.starLord} P{c.st.pada} · {c.st.subLord}</div>
+            {c.housePlanets.length > 0 && (
+              <p style={{ marginTop: 4, fontSize: "0.72rem", color: "var(--fg)" }}>
+                {c.housePlanets.map(p => <span key={p.name} style={{ color: C.PLANET_COLORS[p.name] || "var(--fg)", fontWeight: 700 }}>{p.name} </span>)}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
