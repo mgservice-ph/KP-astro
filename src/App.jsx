@@ -42,6 +42,7 @@ export default function App() {
   const [transitPlanets, setTransitPlanets] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(!!sessionStorage.getItem("adminLoggedIn"));
   const [showChangePwd, setShowChangePwd] = useState(false);
+  const [showCusp, setShowCusp] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.add("light");
@@ -157,8 +158,9 @@ export default function App() {
     const religionData = computeReligionCheck(planets, cusps, ascLong);
     const dnaData = computeDNACheck(planets, cusps, ascLong);
     const ashtakavarga = computeAshtakavarga(planets, cusps, ascLong);
+    const physicalData = computePhysicalCheck(planets, cusps, ascLong);
 
-    setComputedData({ ...data, strData, brainData, muteData, purvaData, marriageData, healthData, familyData, jobData, foreignOpp, businessOffice, sportData, studyData, religionData, dnaData, ashtakavarga });
+    setComputedData({ ...data, strData, brainData, muteData, purvaData, marriageData, healthData, familyData, jobData, foreignOpp, businessOffice, sportData, studyData, religionData, dnaData, ashtakavarga, physicalData });
     setPanchanga(pData);
     } catch (e) { setComputedData(null); setPanchanga(null); }
   }, [config]);
@@ -278,10 +280,11 @@ export default function App() {
   const studyEval = d?.studyData || [];
   const religionData = d?.religionData;
   const dnaData = d?.dnaData;
+  const physicalEval = d?.physicalData || [];
 
-  const evalMap = { strength: strEval, brain: brainEval, mute: muteEval, purvapuniya: purvaEval, marriage: marriageEval, health: healthEval, family: familyEval, job: jobEval, sport: sportEval, study: studyEval };
-  const entityIdMap = { strength: ["strLagnaLord","strLagnaStar","strAscLordStar","strMoonSign","strMoonStar"], brain: ["brainGuru","brainGuruStar","brainBudhan","brainBudhanStar","brainMoon","brainMoonStar"], mute: ["mute2ndLord","mute2ndLordStar","mute3rdLord","mute3rdLordStar"], purvapuniya: ["purva5thLord","purva5thLordStar"], marriage: ["marriage7thLord","marriage7thLordStar","marriageVenus","marriageVenusStar","marriage2ndLord","marriage2ndLordStar","marriage11thLord","marriage11thLordStar"], health: ["healthAscLord","health6thLord"], family: ["familySun","familyMoon","familyMars","familyMercury","familyJupiter","familyVenus","familySaturn","familyRahu","familyKetu"], job: ["job10thLord","job2ndLord","jobSaturn","job11thLord"], sport: ["sport3rdLord"], study: ["studyBudhan"] };
-  const shortLabelMap = { strength: ["LL","LS","AL","ML","MS"], brain: ["G","GS","B","BS","M","MS"], mute: ["2L","2LS","3L","3LS"], purvapuniya: ["5L","5LS"], marriage: ["7L","7LS","V","VS","2L","2LS","11L","11LS"], health: ["AL","6L"], family: ["Su","Mo","Ma","Me","Ju","Ve","Sa","Ra","Ke"], job: ["10","2","Sa","11"], sport: ["3L"], study: ["B"] };
+  const evalMap = { strength: strEval, brain: brainEval, mute: muteEval, purvapuniya: purvaEval, marriage: marriageEval, health: healthEval, family: familyEval, job: jobEval, sport: sportEval, study: studyEval, physical: physicalEval };
+  const entityIdMap = { strength: ["strLagnaLord","strLagnaStar","strAscLordStar","strMoonSign","strMoonStar"], brain: ["brainGuru","brainGuruStar","brainBudhan","brainBudhanStar","brainMoon","brainMoonStar"], mute: ["mute2ndLord","mute2ndLordStar","mute3rdLord","mute3rdLordStar"], purvapuniya: ["purva5thLord","purva5thLordStar"], marriage: ["marriage7thLord","marriage7thLordStar","marriageVenus","marriageVenusStar","marriage2ndLord","marriage2ndLordStar","marriage11thLord","marriage11thLordStar"], health: ["healthAscLord","health6thLord"], family: ["familySun","familyMoon","familyMars","familyMercury","familyJupiter","familyVenus","familySaturn","familyRahu","familyKetu"], job: ["job10thLord","job2ndLord","jobSaturn","job11thLord"], sport: ["sport3rdLord"], study: ["studyBudhan"], physical: ["physicalAscStarLord","physicalAscSignLordStar","physicalBoth"] };
+  const shortLabelMap = { strength: ["LL","LS","AL","ML","MS"], brain: ["G","GS","B","BS","M","MS"], mute: ["2L","2LS","3L","3LS"], purvapuniya: ["5L","5LS"], marriage: ["7L","7LS","V","VS","2L","2LS","11L","11LS"], health: ["AL","6L"], family: ["Su","Mo","Ma","Me","Ju","Ve","Sa","Ra","Ke"], job: ["10","2","Sa","11"], sport: ["3L"], study: ["B"], physical: ["ASL","ASLS","Both"] };
 
   const showChart = viewFilter === "all" || viewFilter === "charts";
   const showAnalytics = viewFilter === "all" || viewFilter === "tables";
@@ -315,9 +318,9 @@ export default function App() {
 
       <div className="print-hide" style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap", marginBottom: 10 }}>
         <span style={{ fontSize: "0.75rem", color: "var(--muted)", marginRight: 4 }}>Check:</span>
-        {["all","strength","brain","mute","purvapuniya","marriage","health","family","job","sport","study","religion","dna"].map(v => (
+        {["all","strength","brain","mute","purvapuniya","marriage","health","family","job","sport","study","religion","dna","physical"].map(v => (
           <button key={v} style={{
-            padding: "4px 10px", borderRadius: "4px", cursor: "pointer", fontSize: "0.75rem",
+            padding: "4px 10px", borderRadius: "4px", cursor: "pointer", fontSize: "0.75rem", minHeight: 44,
             textTransform: "capitalize", transition: "background 0.2s",
             background: checkFilter === v ? "var(--accent)" : "var(--card-sub)",
             color: checkFilter === v ? "#fff" : "var(--accent)",
@@ -388,6 +391,9 @@ export default function App() {
         </div>
         <div className="studio-card" style={{ marginBottom: 4 }}>
           <CheckSection title="Sport check" data={sportEval} meterId="sport" tableId="sportTableBody" entityIds={["sport3rdLord"]} shortLabels={["3L"]} />
+        </div>
+        <div className="studio-card" style={{ marginBottom: 4 }}>
+          <CheckSection title="Physical check" data={physicalEval} meterId="physical" tableId="physicalTableBody" entityIds={["physicalAscStarLord","physicalAscSignLordStar","physicalBoth"]} shortLabels={["ASL","ASLS","Both"]} />
         </div>
         {religionData && <div className="studio-card" style={{ marginBottom: 4, borderTop: "2px solid " + (religionData.classification === "North" ? "#D4A017" : religionData.classification === "West" ? "#3B82F6" : "#22C55E") }}>
           <h3 style={{ margin: "0 0 4px 0", fontSize: "0.8rem" }}>Religion check</h3>
@@ -569,7 +575,18 @@ export default function App() {
           <h3>Vimshottari Dasha Chart</h3>
           <DashaTree moonLong={d.planets.find(p => p.id === "moon")?.absoluteLong || 0} birthTime={d.birthTime} onActiveDashaChange={setActiveDasha} />
         </div>
-        <CuspHouse cusps={d.cusps} planets={d.planets} />
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 8 }}>
+          <button onClick={() => setShowCusp(v => !v)} style={{
+            padding: "6px 16px", borderRadius: "4px", border: "1px solid var(--accent)",
+            background: showCusp ? "var(--accent)" : "var(--card-sub)",
+            color: showCusp ? "#fff" : "var(--accent)",
+            fontWeight: 600, fontSize: "0.8rem", cursor: "pointer", fontFamily: "inherit",
+            transition: "all 0.2s", minHeight: 44,
+          }}>
+            {showCusp ? "Hide Cuspal Bhava Linkage" : "Show Cuspal Bhava Linkage"}
+          </button>
+          {showCusp && <CuspHouse cusps={d.cusps} planets={d.planets} />}
+        </div>
       </div>)}
 
       <Footer />
@@ -1372,4 +1389,56 @@ function computeDNACheck(planets, cusps, ascLong) {
     seventhDominantLabel: s7Dominant ? C.DNA_KARMA_LABELS[s7Dominant] + " karma" : "Tie",
     seventhIsTie: s7Tie
   };
+}
+
+function computePhysicalCheck(planets, cusps, ascLong) {
+  const ascSt = getStellarData(ascLong);
+  const ascStarLordPlanet = planets.find(p => p.name === C.STAR_TO_PLANET[ascSt.starLord]);
+  const ascStarLordEntity = ascStarLordPlanet ? buildEntityFromPlanet("Asc Star Lord", ascStarLordPlanet, cusps, planets) : null;
+
+  const aSI = Math.floor(ascLong / 30);
+  const ascSignLordCode = C.LORDS_ORDER[C.RASI_DOMINIONS[aSI]];
+  const ascSignLordPlanet = planets.find(p => p.name === C.STAR_TO_PLANET[ascSignLordCode]);
+  let ascSignLordStarEntity = null;
+  if (ascSignLordPlanet) {
+    const slSt = getStellarData(ascSignLordPlanet.absoluteLong);
+    const slStarLordPlanet = planets.find(p => p.name === C.STAR_TO_PLANET[slSt.starLord]);
+    if (slStarLordPlanet) {
+      ascSignLordStarEntity = buildEntityFromPlanet("Asc Sign Lord Star", slStarLordPlanet, cusps, planets);
+    }
+  }
+
+  const evaluatePhysical = (entity) => {
+    const wr = [];
+    if (entity && entity.bhavaIdx === 8) {
+      wr.push(`${entity.label} placed in 8th house`);
+    }
+    return {
+      status: wr.length > 0 ? "WEAK" : "MEDIUM",
+      score: wr.length > 0 ? -2 : 0,
+      strongReasons: [],
+      weakReasons: wr,
+      guruAspect: false,
+    };
+  };
+
+  const ents = [ascStarLordEntity, ascSignLordStarEntity].filter(Boolean);
+  const res = ents.map(e => ({ entity: e, evaluation: evaluatePhysical(e) }));
+
+  const bothIn8 = ents.length === 2 && ents.every(e => e.bhavaIdx === 8);
+  if (bothIn8) {
+    res.forEach(r => {
+      r.evaluation.status = "WEAK";
+      r.evaluation.score = -5;
+      if (!r.evaluation.weakReasons.includes(`${r.entity.label} placed in 8th house`)) {
+        r.evaluation.weakReasons.push(`${r.entity.label} placed in 8th house`);
+      }
+    });
+    res.push({
+      entity: { label: "Both Conditions", planetName: "—", bhavaIdx: 8, planetColor: "var(--muted)" },
+      evaluation: { status: "WEAK", score: -5, strongReasons: [], weakReasons: ["Asc Star Lord + Asc Sign Lord Star both in 8th house — weak"], guruAspect: false }
+    });
+  }
+
+  return res;
 }

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import * as C from "../data/constants";
 import { getStellarData, formatArcMinutes } from "../utils/astrology";
 import AshtakavargaChart from "./AshtakavargaChart";
@@ -144,7 +145,7 @@ function D1Grid({ planets, cusps, ascendantAbsoluteLong, panchanga, birthTime })
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "2px", alignContent: "flex-end", marginTop: "auto" }}>
             {cellPlanets.map((p, i) => <PlanetTag key={i} p={p} layoutType="rasi" panchanga={panchanga} />)}
-            {age >= 0 && (ascSignIdx + age) % 12 === signIdx ? (
+            {age >= 0 && (ascSignIdx + age - 1) % 12 === signIdx ? (
               <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#2E7D32", display: "inline-block", padding: "2px 4px" }}>{age} Age</span>
             ) : null}
           </div>
@@ -210,6 +211,15 @@ function D9Grid({ planets, ascendantAbsoluteLong }) {
 export default function ChartGrid({ planets, cusps, ascendantAbsoluteLong, panchanga, birthTime, transitPlanets, transitPanchanga, ashtakavarga }) {
   if (!planets || !cusps) return null;
 
+  const [showAshtakavarga, setShowAshtakavarga] = useState(false);
+  const toggleBtnStyle = {
+    padding: "6px 16px", borderRadius: "4px", border: "1px solid var(--accent)",
+    background: showAshtakavarga ? "var(--accent)" : "var(--card-sub)",
+    color: showAshtakavarga ? "#fff" : "var(--accent)",
+    fontWeight: 600, fontSize: "0.8rem", cursor: "pointer", fontFamily: "inherit",
+    transition: "all 0.2s", minHeight: 44,
+  };
+
   const gridStyle = {
     display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gridTemplateRows: "repeat(4, 1fr)", gap: "1px",
     background: "var(--bdr-strong)", border: "2px solid var(--bdr-strong)", borderRadius: "8px",
@@ -267,7 +277,14 @@ export default function ChartGrid({ planets, cusps, ascendantAbsoluteLong, panch
           <div style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center" }}>{d9Grid}</div>
         </div>
       </div>
-      {ashtakavarga && <AshtakavargaChart data={ashtakavarga} />}
+      {ashtakavarga && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", marginTop: 16 }}>
+          <button onClick={() => setShowAshtakavarga(v => !v)} style={toggleBtnStyle}>
+            {showAshtakavarga ? "Hide Ashtakavarga" : "Show Ashtakavarga"}
+          </button>
+          {showAshtakavarga && <AshtakavargaChart data={ashtakavarga} />}
+        </div>
+      )}
     </>
   );
 }

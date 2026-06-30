@@ -1858,7 +1858,7 @@ function populateGrid(elementId, layoutType) {
             if (mDiff < 0 || (mDiff === 0 && now.getDate() < birthDate.getDate())) age--;
             if (age >= 0) {
               let ascSign = Math.floor(ascendantAbsoluteLong / 30);
-              if (signIdx === (ascSign + age) % 12) {
+              if (signIdx === (ascSign + age - 1) % 12) {
                 let ageTag = document.createElement("span");
                 ageTag.className = "age-tag";
                 ageTag.textContent = age + " Age";

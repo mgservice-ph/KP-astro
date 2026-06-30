@@ -52,7 +52,7 @@ export default function CheckSection({ title, data, meterId, tableId, entityIds,
             const c = colorMap[ev.status];
             return (
               <div key={i} className="rp-item">
-                <span className="rp-title" style={{ color: ["#FF6B00","#2563EB","#D97706","#7C3AED","#059669","#DC2626","#0891B2","#9933FF","#CC6600"][i] || "var(--muted)" }}>{entityIds[i]?.replace(/(str|brain|mute|purva|marriage|health|family|job)([A-Z])/, "$2") || e.label}</span>
+                <span className="rp-title" style={{ color: ["#FF6B00","#2563EB","#D97706","#7C3AED","#059669","#DC2626","#0891B2","#9933FF","#CC6600"][i] || "var(--muted)" }}>{entityIds[i]?.replace(/(str|brain|mute|purva|marriage|health|family|job|physical)([A-Z])/, "$2") || e.label}</span>
                 <span className="rp-value" style={{ color: c }}>{e.planetName}</span>
                 <span style={{ display: "block", fontSize: "0.6rem", color: "var(--muted)", marginTop: 2 }}>{statusTextMap[ev.status]} (H{e.bhavaIdx})</span>
               </div>
