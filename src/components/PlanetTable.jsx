@@ -44,6 +44,7 @@ function fmtDignityCell(dignity, field, pLord) {
 
 export default function PlanetTable({ planets, cusps }) {
   const planetList = planets || [];
+  const sunLong = planetList.find(p => p.id === "sun")?.absoluteLong || 0;
 
   const ascRow = cusps && cusps.length > 1 ? (() => {
     const cusp = cusps[1];
@@ -62,9 +63,15 @@ export default function PlanetTable({ planets, cusps }) {
     };
   })() : null;
 
+  const COMBUST_ORBS = { venus: 9, mercury: 13, mars: 17, jupiter: 11, saturn: 15 };
   const planetRows = planetList.map(p => {
     const st = getStellarData(p.absoluteLong);
     const dig = checkDignityForEntity(p.name, p.signIndex);
+    const diff = Math.min(
+      Math.abs((p.absoluteLong - sunLong + 360) % 360),
+      360 - Math.abs((p.absoluteLong - sunLong + 360) % 360)
+    );
+    const isCombust = COMBUST_ORBS[p.id] && diff <= COMBUST_ORBS[p.id];
     return {
       label: p.name,
       long: p.absoluteLong,
@@ -72,6 +79,7 @@ export default function PlanetTable({ planets, cusps }) {
       signDeg: p.signDeg,
       color: C.PLANET_COLORS[p.name] || "#e0e0e0",
       isRetro: p.isRetro,
+      isCombust,
       dignity: dig,
       pLord: C.PLANET_TO_LORD_MAP[p.name],
       ...st
@@ -105,7 +113,7 @@ export default function PlanetTable({ planets, cusps }) {
           {allRows.map((row, i) => (
             <tr key={i}>
               <td style={{ ...tdStyle, fontWeight: 600, color: row.color }}>
-                {row.label}{row.isRetro ? " R" : ""}
+                {row.label}{row.isRetro ? " R" : ""}{row.isCombust ? " 🔥 C" : ""}
               </td>
               <td style={tdStyle}>{formatArcMinutes(row.long)}</td>
               <td style={tdStyle}>{C.ZODIAC_NAMES[row.signIdx]?.s}</td>
