@@ -6,8 +6,9 @@ import AshtakavargaChart from "./AshtakavargaChart";
 const GRID_COORDS = [[11, 0, 1, 2], [10, -1, -1, 3], [9, -1, -1, 4], [8, 7, 6, 5]];
 
 const cellBase = {
-  background: "var(--card)", padding: "6px", display: "flex", flexDirection: "column",
+  background: "var(--card)", padding: "4px", display: "flex", flexDirection: "column",
   justifyContent: "space-between", position: "relative",
+  minWidth: 0, minHeight: 0,
 };
 
 const extCell = {
@@ -17,7 +18,7 @@ const extCell = {
 
 const planetTag = {
   display: "inline-flex", flexDirection: "column", alignItems: "flex-start", gap: "0px",
-  padding: "2px 4px", borderRadius: "3px", fontSize: "0.6rem", fontWeight: 700,
+  padding: "1px 3px", borderRadius: "3px", fontSize: "0.5rem", fontWeight: 700,
   background: "var(--card-sub)", border: "1px solid var(--bdr)",
 };
 
@@ -25,7 +26,7 @@ function PlanetTag({ p, layoutType, panchanga, moonNakIndex }) {
   const st = getStellarData(p.absoluteLong);
   const pColor = C.PLANET_COLORS[p.name] || "var(--fg)";
   const displayDeg = layoutType === "rasi" ? p.signDeg : (p.absoluteLong % 3.333333) * 9;
-  const degHtml = layoutType === "rasi" ? ` <span class="deg" style="font-weight:400;font-size:0.5rem;color:var(--muted);">${Math.floor(displayDeg)}°</span>` : "";
+  const degHtml = layoutType === "rasi" ? ` <span class="deg" style="font-weight:400;font-size:0.5rem;color:var(--fg);">${Math.floor(displayDeg)}°</span>` : "";
   const isMoon = p.name === "Moon";
 
   let marker = "";
@@ -47,15 +48,15 @@ function PlanetTag({ p, layoutType, panchanga, moonNakIndex }) {
   return (
     <span style={{ ...planetTag, ...(isMoon ? { background: "#F7EEB5", borderColor: "#D9CC7A" } : {}) }}>
       <span style={{ display: "flex", alignItems: "center", gap: "2px", width: "100%" }}>
-        <span style={{ color: isMoon ? "#858585" : pColor, fontWeight: 700 }}>{p.name}</span>
+        <span style={{ color: isMoon ? "#666666" : pColor, fontWeight: 700 }}>{p.name}</span>
         {marker ? <span dangerouslySetInnerHTML={{ __html: marker }} /> : null}
-        {p.isRetro ? <span style={{ color: "#C93B3B", fontSize: "0.65rem", fontWeight: 800 }}>R</span> : null}
+        {p.isRetro ? <span style={{ color: "#C93B3B", fontSize: "0.5rem", fontWeight: 800 }}>R</span> : null}
         <span dangerouslySetInnerHTML={{ __html: degHtml }} />
       </span>
       <span style={{ fontSize: "0.5rem", lineHeight: 1.2, marginTop: "1px", opacity: 0.9 }}>
-        <span style={{ color: isMoon ? "#858585" : "var(--star-clr)", fontWeight: 700 }}>{st.starLord}</span>
-        <span style={{ color: isMoon ? "#858585" : "var(--muted)" }}>·P{st.pada}</span>
-        {layoutType === "rasi" ? <span style={{ color: isMoon ? "#858585" : "var(--fg)", fontWeight: 600 }}>{st.subLord}</span> : null}
+        <span style={{ color: isMoon ? "#666666" : "var(--fg)", fontWeight: 700 }}>{st.starLord}</span>
+        <span style={{ color: isMoon ? "#666666" : "var(--fg)" }}>·P{st.pada}</span>
+        {layoutType === "rasi" ? <span style={{ color: isMoon ? "#666666" : "var(--fg)", fontWeight: 600 }}>{st.subLord}</span> : null}
       </span>
     </span>
   );
@@ -69,9 +70,9 @@ function ExtrusionPlanet({ p, panchanga }) {
     <span style={{ whiteSpace: "normal", wordBreak: "break-word" }}>
       <span style={{ fontWeight: 700, color: pColor }}>{p.name}</span>
       {hasTS ? <span style={{ color: "#C62828", fontWeight: 700, fontSize: "0.5rem" }}>(TS)</span> : null}
-      {p.isRetro ? <span style={{ color: "#C93B3B", fontSize: "0.65rem", fontWeight: 800 }}>R</span> : null}
+      {p.isRetro ? <span style={{ color: "#C93B3B", fontSize: "0.5rem", fontWeight: 800 }}>R</span> : null}
       {` ${C.ZODIAC_NAMES[p.signIndex].s}${Math.floor(p.signDeg)}° `}
-      <span style={{ color: "var(--muted)" }}>{st.starLord}</span>
+      <span style={{ color: "var(--fg)" }}>{st.starLord}</span>
       {p.name === "Asc" ? <span style={{ color: "var(--fg)" }}>·{st.subLord}</span> : null}
     </span>
   );
@@ -125,19 +126,19 @@ function D1Grid({ planets, cusps, ascendantAbsoluteLong, panchanga, birthTime })
         <div key={key} style={{ ...cellBase, ...(isAsc ? { background: "var(--active-bg)", boxShadow: "inset 3px 0 0 var(--active-border)" } : {}) }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "2px", marginBottom: "4px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
-              <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+              <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--fg)", textTransform: "uppercase" }}>
                 {C.ZODIAC_NAMES[signIdx].s} {C.ZODIAC_NAMES[signIdx].n}
               </span>
               {hasSoonya ? <span style={{ color: "#C93B3B", fontSize: "1rem", fontWeight: 900, lineHeight: 1 }}>✗</span> : null}
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "2px" }}>
               {isAsc ? (
-                <span style={{ fontSize: "0.65rem", fontWeight: 700, background: "var(--accent)", color: "#fff", padding: "2px 5px", borderRadius: "3px" }}>
+                <span style={{ fontSize: "0.55rem", fontWeight: 700, background: "var(--accent)", color: "#fff", padding: "2px 5px", borderRadius: "3px" }}>
                   Asc {Math.floor(ascendantAbsoluteLong % 30)}°
                 </span>
               ) : null}
               {isAsc ? (
-                <span style={{ fontSize: "0.6rem", color: "var(--muted)", whiteSpace: "nowrap" }}>
+                <span style={{ fontSize: "0.5rem", color: "var(--fg)", whiteSpace: "nowrap" }}>
                   · {getStellarData(ascendantAbsoluteLong).starLord} P{getStellarData(ascendantAbsoluteLong).pada} → {getStellarData(ascendantAbsoluteLong).subLord}
                 </span>
               ) : null}
@@ -146,7 +147,7 @@ function D1Grid({ planets, cusps, ascendantAbsoluteLong, panchanga, birthTime })
           <div style={{ display: "flex", flexWrap: "wrap", gap: "2px", alignContent: "flex-end", marginTop: "auto" }}>
             {cellPlanets.map((p, i) => <PlanetTag key={i} p={p} layoutType="rasi" panchanga={panchanga} />)}
             {age >= 0 && (ascSignIdx + age - 1) % 12 === signIdx ? (
-              <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#2E7D32", display: "inline-block", padding: "2px 4px" }}>{age} Age</span>
+              <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "#2E7D32", display: "inline-block", padding: "2px 4px" }}>{age} Age</span>
             ) : null}
           </div>
         </div>
@@ -184,14 +185,14 @@ function D9Grid({ planets, ascendantAbsoluteLong }) {
         <div key={key} style={{ ...cellBase, ...(isAsc ? { background: "var(--active-bg)", boxShadow: "inset 3px 0 0 var(--active-border)" } : {}) }}>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "2px", marginBottom: "4px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", width: "100%", alignItems: "center" }}>
-              <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase" }}>
+              <span style={{ fontSize: "0.55rem", fontWeight: 700, color: "var(--fg)", textTransform: "uppercase" }}>
                 {C.ZODIAC_NAMES[signIdx].s} {C.ZODIAC_NAMES[signIdx].n}
               </span>
             </div>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "2px" }}>
-              {isAsc ? <span style={{ fontSize: "0.65rem", fontWeight: 700, background: "var(--accent)", color: "#fff", padding: "2px 5px", borderRadius: "3px" }}>Asc</span> : null}
+              {isAsc ? <span style={{ fontSize: "0.55rem", fontWeight: 700, background: "var(--accent)", color: "#fff", padding: "2px 5px", borderRadius: "3px" }}>Asc</span> : null}
               {isAsc ? (
-                <span style={{ fontSize: "0.6rem", color: "var(--muted)" }}>
+                <span style={{ fontSize: "0.5rem", color: "var(--fg)" }}>
                   {getStellarData(ascendantAbsoluteLong).starLord}
                 </span>
               ) : null}
