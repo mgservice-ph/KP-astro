@@ -1,6 +1,6 @@
 import { useState } from "react";
 import * as C from "../data/constants";
-import { getStellarData, formatArcMinutes } from "../utils/astrology";
+import { getStellarData, formatArcMinutes, checkDignityForEntity } from "../utils/astrology";
 import AshtakavargaChart from "./AshtakavargaChart";
 
 const GRID_COORDS = [[11, 0, 1, 2], [10, -1, -1, 3], [9, -1, -1, 4], [8, 7, 6, 5]];
@@ -21,12 +21,25 @@ const planetTag = {
   background: "var(--card-sub)", border: "1px solid var(--bdr)",
 };
 
+const DIGNITY_BG = {
+  isUcham: "#fffeb5",
+  isAatchi: "#d0ffc9",
+  isNeecham: "#bfccff",
+};
+
 function PlanetTag({ p, layoutType, panchanga, moonNakIndex, isCombust }) {
   const st = getStellarData(p.absoluteLong);
   const pColor = C.PLANET_COLORS[p.name] || "var(--fg)";
   const displayDeg = layoutType === "rasi" ? p.signDeg : (p.absoluteLong % 3.333333) * 9;
   const degHtml = layoutType === "rasi" ? ` <span class="deg" style="font-weight:400;font-size:0.5rem;color:var(--fg);">${Math.floor(displayDeg)}°</span>` : "";
   const isMoon = p.name === "Moon";
+
+  const dig = checkDignityForEntity(p.name, p.signIndex);
+  const dignityBg = dig.isUcham ? DIGNITY_BG.isUcham
+    : dig.isAatchi ? DIGNITY_BG.isAatchi
+    : dig.isNeecham ? DIGNITY_BG.isNeecham
+    : null;
+  const showCombustBg = isCombust && !dig.isUcham && !dig.isAatchi && !dig.isNeecham;
 
   let marker = "";
   if (panchanga) {
@@ -45,12 +58,13 @@ function PlanetTag({ p, layoutType, panchanga, moonNakIndex, isCombust }) {
   if (layoutType === "rasi" && p.isTrikona) marker += "<span style='background:#000;color:#fff;font-weight:700;font-size:0.5rem;padding:1px 3px;border-radius:2px;'>GT</span>";
 
   return (
-    <span style={{ ...planetTag, ...(isMoon ? { background: "#FFF8C9", borderColor: "#D9CC7A" } : {}), ...(isCombust ? { background: "#ffe6cc", borderColor: "#e89a4a" } : {}) }}>
+    <span style={{ ...planetTag, ...(dignityBg ? { background: dignityBg } : {}), ...(isMoon ? { background: "#FFF8C9" } : {}), ...(showCombustBg ? { background: "#ffe6cc" } : {}) }}>
       <span style={{ display: "flex", alignItems: "center", gap: "2px", width: "100%" }}>
         <span style={{ color: isMoon ? "#666666" : pColor, fontWeight: 700 }}>{p.name}</span>
         {marker ? <span dangerouslySetInnerHTML={{ __html: marker }} /> : null}
         {p.isRetro ? <span style={{ color: "#C93B3B", fontSize: "0.65rem", fontWeight: 800 }}>R</span> : null}
         {isCombust ? <span style={{ fontSize: "0.5rem" }}>🔥</span> : null}
+        {dig.isPagai ? <span style={{ fontSize: "0.5rem" }}>💢</span> : null}
         <span dangerouslySetInnerHTML={{ __html: degHtml }} />
       </span>
       <span style={{ fontSize: "0.5rem", lineHeight: 1.2, marginTop: "1px", opacity: 0.9 }}>

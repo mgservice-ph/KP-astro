@@ -40,7 +40,7 @@ export const NAKSHATRAS = [
   { n: "Poorattaadhi", s: 320, l: "Jup" }, { n: "Uthirattaadhi", s: 333.3333, l: "Sat" }, { n: "Revathi", s: 346.6667, l: "Mer" }
 ];
 
-export const PLANET_COLORS = { Sun: "#FF6B00", Moon: "#999999", Mars: "#CC2222", Mercury: "#219A21", Jupiter: "#E5A600", Venus: "#C93A6B", Saturn: "#6666CC", Rahu: "#9933FF", Ketu: "#CC6600", Mandi: "#8B2252" };
+export const PLANET_COLORS = { Sun: "#FF6B00", Moon: "#999999", Mars: "#CC2222", Mercury: "#219A21", Jupiter: "#B88600", Venus: "#C93A6B", Saturn: "#6666CC", Rahu: "#9933FF", Ketu: "#CC6600", Mandi: "#8B2252" };
 export const DASHA_YEARS_MAP = { Ket: 7, Ven: 20, Sun: 6, Moo: 10, Mar: 7, Rah: 18, Jup: 16, Sat: 19, Mer: 17 };
 export const LORD_TO_ID = { Ket: "ketu", Ven: "venus", Sun: "sun", Moo: "moon", Mar: "mars", Rah: "rahu", Jup: "jupiter", Sat: "saturn", Mer: "mercury" };
 export const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"];
@@ -126,7 +126,7 @@ export const DNA_RASI_KARMA = [
 
 export const DNA_KARMA_COLORS = {
   Surya: "#FF6B00", Moon: "#999999", Mars: "#CC2222",
-  Rahu: "#9933FF", Guru: "#E5A600", Sani: "#6666CC",
+  Rahu: "#9933FF", Guru: "#B88600", Sani: "#6666CC",
   Budha: "#33CC33", Venus: "#C93A6B"
 };
 
