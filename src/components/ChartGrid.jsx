@@ -21,7 +21,7 @@ const planetTag = {
   background: "var(--card-sub)", border: "1px solid var(--bdr)",
 };
 
-function PlanetTag({ p, layoutType, panchanga, moonNakIndex }) {
+function PlanetTag({ p, layoutType, panchanga, moonNakIndex, isCombust }) {
   const st = getStellarData(p.absoluteLong);
   const pColor = C.PLANET_COLORS[p.name] || "var(--fg)";
   const displayDeg = layoutType === "rasi" ? p.signDeg : (p.absoluteLong % 3.333333) * 9;
@@ -45,17 +45,18 @@ function PlanetTag({ p, layoutType, panchanga, moonNakIndex }) {
   if (layoutType === "rasi" && p.isTrikona) marker += "<span style='background:#000;color:#fff;font-weight:700;font-size:0.5rem;padding:1px 3px;border-radius:2px;'>GT</span>";
 
   return (
-    <span style={{ ...planetTag, ...(isMoon ? { background: "#F7EEB5", borderColor: "#D9CC7A" } : {}) }}>
+    <span style={{ ...planetTag, ...(isMoon ? { background: "#FFF8C9", borderColor: "#D9CC7A" } : {}), ...(isCombust ? { background: "#ffe6cc", borderColor: "#e89a4a" } : {}) }}>
       <span style={{ display: "flex", alignItems: "center", gap: "2px", width: "100%" }}>
-        <span style={{ color: isMoon ? "#AAAAAA" : pColor, fontWeight: 700 }}>{p.name}</span>
+        <span style={{ color: isMoon ? "#666666" : pColor, fontWeight: 700 }}>{p.name}</span>
         {marker ? <span dangerouslySetInnerHTML={{ __html: marker }} /> : null}
         {p.isRetro ? <span style={{ color: "#C93B3B", fontSize: "0.65rem", fontWeight: 800 }}>R</span> : null}
+        {isCombust ? <span style={{ fontSize: "0.5rem" }}>🔥</span> : null}
         <span dangerouslySetInnerHTML={{ __html: degHtml }} />
       </span>
       <span style={{ fontSize: "0.5rem", lineHeight: 1.2, marginTop: "1px", opacity: 0.9 }}>
-        <span style={{ color: isMoon ? "#AAAAAA" : "var(--fg)", fontWeight: 700 }}>{st.starLord}</span>
-        <span style={{ color: isMoon ? "#AAAAAA" : "var(--fg)" }}>·P{st.pada}</span>
-        {layoutType === "rasi" ? <span style={{ color: isMoon ? "#AAAAAA" : "var(--fg)", fontWeight: 600 }}>{st.subLord}</span> : null}
+        <span style={{ color: isMoon ? "#666666" : "var(--fg)", fontWeight: 700 }}>{st.starLord}</span>
+        <span style={{ color: isMoon ? "#666666" : "var(--fg)" }}>·P{st.pada}</span>
+        {layoutType === "rasi" ? <span style={{ color: isMoon ? "#666666" : "var(--fg)", fontWeight: 600 }}>{st.subLord}</span> : null}
       </span>
     </span>
   );
@@ -102,6 +103,14 @@ function TransitExtrusionBar({ planets, signIndices, isLeftRight, panchanga }) {
 }
 
 function D1Grid({ planets, cusps, ascendantAbsoluteLong, panchanga, birthTime }) {
+  const COMBUST_ORBS = { venus: 9, mercury: 13, mars: 17, jupiter: 11, saturn: 15 };
+  const sunLong = planets?.find(p => p.id === "sun")?.absoluteLong || 0;
+  const isPlanetCombust = (p) => {
+    if (!sunLong || p.id === "sun") return false;
+    const diff = Math.min(Math.abs((p.absoluteLong - sunLong + 360) % 360), 360 - Math.abs((p.absoluteLong - sunLong + 360) % 360));
+    return COMBUST_ORBS[p.id] && diff <= COMBUST_ORBS[p.id];
+  };
+
   const ascSignIdx = cusps && cusps[1] != null ? Math.floor(cusps[1] / 30) : 0;
   let age = -1;
   if (birthTime) {
@@ -144,7 +153,7 @@ function D1Grid({ planets, cusps, ascendantAbsoluteLong, panchanga, birthTime })
             </div>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "2px", alignContent: "flex-end", marginTop: "auto" }}>
-            {cellPlanets.map((p, i) => <PlanetTag key={i} p={p} layoutType="rasi" panchanga={panchanga} />)}
+            {cellPlanets.map((p, i) => <PlanetTag key={i} p={p} layoutType="rasi" panchanga={panchanga} isCombust={isPlanetCombust(p)} />)}
             {age >= 0 && (ascSignIdx + age - 1) % 12 === signIdx ? (
               <span style={{ fontSize: "0.65rem", fontWeight: 700, color: "#2E7D32", display: "inline-block", padding: "2px 4px" }}>{age} Age</span>
             ) : null}
