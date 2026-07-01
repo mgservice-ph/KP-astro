@@ -58,7 +58,7 @@ function PlanetTag({ p, layoutType, panchanga, moonNakIndex, isCombust }) {
   if (layoutType === "rasi" && p.isTrikona) marker += "<span style='background:#000;color:#fff;font-weight:700;font-size:0.5rem;padding:1px 3px;border-radius:2px;'>GT</span>";
 
   return (
-    <span style={{ ...planetTag, ...(dignityBg ? { background: dignityBg } : {}), ...(isMoon ? { background: "#FFF8C9" } : {}), ...(showCombustBg ? { background: "#ffe6cc" } : {}) }}>
+    <span style={{ ...planetTag, ...(layoutType === "rasi" && dignityBg ? { background: dignityBg } : {}), ...(isMoon ? { background: "#FFF8C9" } : {}), ...(layoutType === "rasi" && showCombustBg ? { background: "#ffe6cc" } : {}) }}>
       <span style={{ display: "flex", alignItems: "center", gap: "2px", width: "100%" }}>
         <span style={{ color: isMoon ? "#666666" : pColor, fontWeight: 700 }}>{p.name}</span>
         {marker ? <span dangerouslySetInnerHTML={{ __html: marker }} /> : null}
